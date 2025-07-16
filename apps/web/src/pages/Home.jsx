@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useProducts } from '../hooks/useProducts';
 import ProductCard from '../components/ProductCard';
 import Pagination from '../components/Pagination';
-import Sidebar from './components/Sidebar';
+import Sidebar from '../components/Sidebar';
 import SearchBar from '../components/SearchBar';
 import Logo from '../components/Logo';
 

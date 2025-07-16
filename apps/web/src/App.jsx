@@ -16,6 +16,7 @@ export default function App() {
   // Cargar el perfil del usuario al iniciar
   useEffect(() => {
     const token = localStorage.getItem('token');
+    
     if (!token) {
       setLoading(false);
       return;
@@ -54,4 +55,4 @@ export default function App() {
       </Routes>
     </Router>
   );
-
+}
