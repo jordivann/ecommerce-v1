@@ -10,16 +10,19 @@ import adminRouter from './routes/admin.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-app.use('/api/v1/auth', authRouter);
-app.use('/api/v1', userRouter);
-app.use('/api/v1/admin', adminRouter);
 
-
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // tu frontend
+  credentials: true, // si vas a usar cookies o headers auth
+}));
 app.use(morgan('dev'));
 app.use(express.json());
 
+
 app.use('/api/v1', rootRouter);
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/users', userRouter);
+app.use('/api/v1/dashboard', adminRouter);
 app.use('/api/v1/products', productsRouter);  
 
 (async () => {
