@@ -1,3 +1,4 @@
+
 // web/src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -53,4 +54,4 @@ export default function App() {
       </Routes>
     </Router>
   );
-}
+
