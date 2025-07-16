@@ -1,23 +1,56 @@
-import { useProducts } from './hooks/useProducts';
+// web/src/App.jsx
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import Layout from './Layouts/Layout';
+import Home from './pages/Home';
+import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import { getProfile } from './lib/apiClient';
 
 export default function App() {
-  const { data: products, loading, error } = useProducts();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  if (loading) return <p>Cargando…</p>;
-  if (error)   return <p>Error: {error.message}</p>;
+  // Cargar el perfil del usuario al iniciar
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    getProfile(token)
+      .then(data => {
+        if (data?.id) {
+          setUser(data);
+        }
+      })
+      .catch(err => console.error('Error al cargar perfil:', err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <p>Cargando...</p>;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Productos</h1>
-      <ul>
-        {products.map(p => (
-          <li key={p.id}>
-            <strong>{p.name}</strong> – ${p.price}
-            <br />
-            <img src={p.imageUrl} alt={p.name} width={120} />
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout user={user} />}>
+          <Route index element={<Home />} />
+          <Route path="/login" element={<Login onLogin={setUser} />} />
+          <Route path="/register" element={<Register onRegister={setUser} />} />
+          <Route
+            path="/dashboard"
+            element={
+              user?.role === 'admin' ? (
+                <Dashboard user={user} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+        </Route>
+      </Routes>
+    </Router>
   );
 }

@@ -20,6 +20,7 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
 
     const { name, email, password } = req.body;
+      
 
     try {
       const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
@@ -42,6 +43,7 @@ router.post(
 );
 
 // Login
+// src/routes/auth.js  ➜  dentro del handler /login
 router.post(
   '/login',
   [
@@ -54,19 +56,34 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
 
     const { email, password } = req.body;
+    console.log('📥 Login attempt:', email);          // 1️⃣  llega el request
+
+    console.log('📤 Password recibido:', password);
 
     try {
-      const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+      const result = await pool.query(
+        'SELECT * FROM users WHERE email = $1',
+        [email]
+      );
       const user = result.rows[0];
+      console.log('🔍 User found?', !!user);          // 2️⃣  existe el mail
+      console.log('📤 Password recibido:', user?.password);
       if (!user) return res.status(401).json({ error: 'Credenciales inválidas' });
 
       const match = await comparePassword(password, user.password);
+      console.log('🔑 Password match?', match);       // 3️⃣  coincide el pass
+
       if (!match) return res.status(401).json({ error: 'Credenciales inválidas' });
 
       const token = signToken({ id: user.id, role: user.role });
-      res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+      console.log('✅ Login OK, token emitido');      // 4️⃣  todo OK
+
+      res.json({
+        token,
+        user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      });
     } catch (err) {
-      console.error(err);
+      console.error('💥 Error en login:', err);       // 5️⃣  cualquier fallo SQL
       res.status(500).json({ error: 'Error en el servidor' });
     }
   }
