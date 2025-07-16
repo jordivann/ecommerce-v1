@@ -8,7 +8,7 @@ export default function App() {
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>Productos</h1>
+      <h1>Productos.</h1>
       <ul>
         {products.map(p => (
           <li key={p.id}>
