@@ -1,14 +1,19 @@
-// src/routes/admin.js
 import { Router } from 'express';
 import { pool } from '../db.js';
 import { authRequired } from '../middlewares/authMiddleware.js';
 
 const router = Router();
 
-// Ruta de bienvenida al dashboard admin
+// ==============================
+// 🏁 Dashboard admin welcome
+// ==============================
 router.get('/dashboard', authRequired('admin'), async (req, res) => {
   res.json({ message: `Bienvenido al panel admin, usuario ID: ${req.user.id}` });
 });
+
+// ==============================
+// 👤 Usuarios
+// ==============================
 
 // Obtener todos los usuarios
 router.get('/users', authRequired('admin'), async (req, res) => {
@@ -21,7 +26,7 @@ router.get('/users', authRequired('admin'), async (req, res) => {
   }
 });
 
-// Actualizar rol de usuario (por ejemplo, promover a admin)
+// Actualizar rol de usuario
 router.put('/users/:id/role', authRequired('admin'), async (req, res) => {
   const { id } = req.params;
   const { role } = req.body;
@@ -46,7 +51,11 @@ router.put('/users/:id/role', authRequired('admin'), async (req, res) => {
   }
 });
 
-// Obtener resumen de productos
+// ==============================
+// 📦 Productos
+// ==============================
+
+// Obtener todos los productos (con nombre de categoría)
 router.get('/products', authRequired('admin'), async (req, res) => {
   try {
     const result = await pool.query(`
@@ -58,6 +67,7 @@ router.get('/products', authRequired('admin'), async (req, res) => {
         p.stock,
         p.category_id,
         c.name AS category,
+        p.image_url,
         p.created_at
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
@@ -69,48 +79,63 @@ router.get('/products', authRequired('admin'), async (req, res) => {
     res.status(500).json({ error: 'Error al obtener productos' });
   }
 });
-// Editar un producto
-router.put('/products/:id', async (req, res) => {
-  const { id } = req.params;
+
+// Crear producto
+router.post('/products', authRequired('admin'), async (req, res) => {
   const { name, description, price, stock, category_id } = req.body;
+
+  // Validaciones manuales simples
+  const nameRegex = /^[a-zA-Z0-9ÁÉÍÓÚÑáéíóúñ\s]{2,100}$/;
+  const descRegex = /^[\w\s.,;:¡!¿?"()\-]{0,300}$/;
+
+  if (!name || !nameRegex.test(name.trim())) {
+    return res.status(400).json({ error: 'Nombre inválido: solo letras y números, máx 100 caracteres' });
+  }
+
+  if (description && !descRegex.test(description.trim())) {
+    return res.status(400).json({ error: 'Descripción inválida: caracteres no permitidos o muy larga (máx 300)' });
+  }
+
+  if (isNaN(price) || price < 0) {
+    return res.status(400).json({ error: 'Precio inválido' });
+  }
+
+  if (!Number.isInteger(Number(stock)) || stock < 0) {
+    return res.status(400).json({ error: 'Stock inválido' });
+  }
 
   try {
     const result = await pool.query(
-      `UPDATE products
-       SET name = $1, description = $2, price = $3, stock = $4, category_id = $5
-       WHERE id = $6
+      `INSERT INTO products (name, description, price, stock, category_id, created_at)
+       VALUES ($1, $2, $3, $4, $5, NOW())
        RETURNING *`,
-      [name, description, price, stock, category_id, id]
+      [name.trim(), description?.trim(), price, stock, category_id]
     );
 
-    if (result.rowCount === 0)
-      return res.status(404).json({ error: 'Producto no encontrado' });
-
-    res.json({ message: 'Producto actualizado', product: result.rows[0] });
+    res.status(201).json({ message: 'Producto creado', product: result.rows[0] });
   } catch (err) {
-    console.error('Error al editar producto:', err);
-    res.status(500).json({ error: 'Error al editar producto' });
+    console.error('Error al crear producto:', err);
+    res.status(500).json({ error: 'Error al crear producto' });
   }
 });
 
-// Eliminar un producto
-router.put('/products/:id', async (req, res) => {
+// Editar producto (actualización parcial)
+router.put('/products/:id', authRequired('admin'), async (req, res) => {
   const { id } = req.params;
   const { name, description, price, stock, category_id, image_url } = req.body;
 
   try {
-    // Validar si hay algo que actualizar
     const fields = [];
     const values = [];
     let paramIndex = 1;
 
     if (name !== undefined) {
       fields.push(`name = $${paramIndex++}`);
-      values.push(name);
+      values.push(name.trim());
     }
     if (description !== undefined) {
       fields.push(`description = $${paramIndex++}`);
-      values.push(description);
+      values.push(description.trim());
     }
     if (price !== undefined) {
       fields.push(`price = $${paramIndex++}`);
@@ -133,7 +158,7 @@ router.put('/products/:id', async (req, res) => {
       return res.status(400).json({ error: 'No se proporcionaron campos para actualizar' });
     }
 
-    values.push(id); // último valor para el WHERE
+    values.push(id);
 
     const result = await pool.query(
       `UPDATE products SET ${fields.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
@@ -150,6 +175,9 @@ router.put('/products/:id', async (req, res) => {
   }
 });
 
+// ==============================
+// 📁 Categorías
+// ==============================
 
 router.get('/categories', authRequired('admin'), async (req, res) => {
   try {
@@ -158,48 +186,6 @@ router.get('/categories', authRequired('admin'), async (req, res) => {
   } catch (err) {
     console.error('Error al obtener categorías:', err);
     res.status(500).json({ error: 'Error al obtener categorías' });
-  }
-});
-// Actualizar categoría de un producto
-router.put('/products/:id/category', authRequired('admin'), async (req, res) => {
-  const { id } = req.params;
-  const { category_id } = req.body;
-
-  try {
-    const update = await pool.query(
-      'UPDATE products SET category_id = $1 WHERE id = $2 RETURNING id',
-      [category_id || null, id]
-    );
-
-    if (update.rowCount === 0) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
-    }
-
-    const catName = category_id
-      ? (await pool.query('SELECT name FROM categories WHERE id = $1', [category_id])).rows[0]?.name
-      : '';
-
-    res.json({ message: 'Categoría actualizada', category_name: catName });
-  } catch (err) {
-    console.error('Error al actualizar categoría:', err);
-    res.status(500).json({ error: 'Error al actualizar categoría' });
-  }
-});
-router.post('/products', async (req, res) => {
-  const { name, description, price, stock, category_id } = req.body;
-
-  try {
-    const result = await pool.query(
-      `INSERT INTO products (name, description, price, stock, category_id, created_at)
-       VALUES ($1, $2, $3, $4, $5, NOW())
-       RETURNING *`,
-      [name, description, price, stock, category_id]
-    );
-
-    res.status(201).json({ message: 'Producto creado', product: result.rows[0] });
-  } catch (err) {
-    console.error('Error al crear producto:', err);
-    res.status(500).json({ error: 'Error al crear producto' });
   }
 });
 

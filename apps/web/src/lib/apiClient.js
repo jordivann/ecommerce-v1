@@ -125,3 +125,14 @@ export async function getAdminCategories(token) {
   return res.json();
 }
 
+export async function getPublicProducts() {
+  const res = await fetch(`${API_URL}/products`);
+  if (!res.ok) throw new Error('Error al cargar productos');
+  return res.json();
+}
+
+export async function getPublicCategories() {
+  const res = await fetch(`${API_URL}/categories`);
+  if (!res.ok) throw new Error('Error al cargar categorías');
+  return res.json();
+}

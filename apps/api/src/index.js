@@ -4,6 +4,8 @@ import morgan from 'morgan';
 import { pool } from './db.js';
 import rootRouter from './routes/root.js';
 import productsRouter from './routes/products.js';
+
+import categoriesRouter from './routes/categories.js';
 import userRouter from './routes/users.js';
 import authRouter from './routes/auth.js';
 import adminRouter from './routes/admin.js';
@@ -24,6 +26,7 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/dashboard', adminRouter);
 app.use('/api/v1/products', productsRouter);  
+app.use('/api/v1/categories', categoriesRouter);  
 
 (async () => {
   try {
