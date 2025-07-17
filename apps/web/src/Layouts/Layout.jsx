@@ -1,5 +1,6 @@
 // web/src/Layout.jsx
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 
 export default function Layout() {
@@ -13,13 +14,8 @@ export default function Layout() {
 
   return (
     <div>
-      <nav>
-        <Link to="/">Inicio</Link> |{' '}
-        {user?.role === 'admin' && <Link to="/dashboard">Dashboard</Link>} |{' '}
-        {!user && <Link to="/login">Login</Link>} |{' '}
-        {!user && <Link to="/register">Register</Link>} |{' '}
-        {user && <button onClick={handleLogout}>Cerrar sesión</button>}
-      </nav>
+      <Navbar user={user} handleLogout={handleLogout} />
+
       <hr />
       <Outlet />
     </div>
