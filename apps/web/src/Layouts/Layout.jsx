@@ -1,22 +1,24 @@
 // web/src/Layout.jsx
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 
 export default function Layout() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
   function handleLogout() {
-    localStorage.removeItem('token');
-    // Redirigir al login o al home
-    window.location.href = '/login';
+    logout();
+    navigate('/login'); // Redirecciona correctamente
   }
 
   return (
     <div>
       <nav>
         <Link to="/">Inicio</Link> |{' '}
-        <Link to="/dashboard">Dashboard</Link> |{' '}
-        <Link to="/login">Login</Link> |{' '}
-        <Link to="/register">Register</Link> |{' '}
-        <button onClick={handleLogout}>Cerrar sesión</button>
-
+        {user?.role === 'admin' && <Link to="/dashboard">Dashboard</Link>} |{' '}
+        {!user && <Link to="/login">Login</Link>} |{' '}
+        {!user && <Link to="/register">Register</Link>} |{' '}
+        {user && <button onClick={handleLogout}>Cerrar sesión</button>}
       </nav>
       <hr />
       <Outlet />
