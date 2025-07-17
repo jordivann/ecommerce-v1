@@ -53,6 +53,7 @@ router.get('/products', authRequired('admin'), async (req, res) => {
       SELECT
         p.id,
         p.name,
+        p.description,
         p.price,
         p.stock,
         p.category_id,
@@ -93,24 +94,62 @@ router.put('/products/:id', async (req, res) => {
 });
 
 // Eliminar un producto
-router.delete('/products/:id', async (req, res) => {
+router.put('/products/:id', async (req, res) => {
   const { id } = req.params;
+  const { name, description, price, stock, category_id, image_url } = req.body;
 
   try {
+    // Validar si hay algo que actualizar
+    const fields = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (name !== undefined) {
+      fields.push(`name = $${paramIndex++}`);
+      values.push(name);
+    }
+    if (description !== undefined) {
+      fields.push(`description = $${paramIndex++}`);
+      values.push(description);
+    }
+    if (price !== undefined) {
+      fields.push(`price = $${paramIndex++}`);
+      values.push(price);
+    }
+    if (stock !== undefined) {
+      fields.push(`stock = $${paramIndex++}`);
+      values.push(stock);
+    }
+    if (category_id !== undefined) {
+      fields.push(`category_id = $${paramIndex++}`);
+      values.push(category_id);
+    }
+    if (image_url !== undefined) {
+      fields.push(`image_url = $${paramIndex++}`);
+      values.push(image_url);
+    }
+
+    if (fields.length === 0) {
+      return res.status(400).json({ error: 'No se proporcionaron campos para actualizar' });
+    }
+
+    values.push(id); // último valor para el WHERE
+
     const result = await pool.query(
-      'DELETE FROM products WHERE id = $1 RETURNING id',
-      [id]
+      `UPDATE products SET ${fields.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
+      values
     );
 
     if (result.rowCount === 0)
       return res.status(404).json({ error: 'Producto no encontrado' });
 
-    res.json({ message: 'Producto eliminado' });
+    res.json({ message: 'Producto actualizado', product: result.rows[0] });
   } catch (err) {
-    console.error('Error al eliminar producto:', err);
-    res.status(500).json({ error: 'Error al eliminar producto' });
+    console.error('Error al editar producto:', err);
+    res.status(500).json({ error: 'Error al editar producto' });
   }
 });
+
 
 router.get('/categories', authRequired('admin'), async (req, res) => {
   try {
@@ -144,6 +183,23 @@ router.put('/products/:id/category', authRequired('admin'), async (req, res) => 
   } catch (err) {
     console.error('Error al actualizar categoría:', err);
     res.status(500).json({ error: 'Error al actualizar categoría' });
+  }
+});
+router.post('/products', async (req, res) => {
+  const { name, description, price, stock, category_id } = req.body;
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO products (name, description, price, stock, category_id, created_at)
+       VALUES ($1, $2, $3, $4, $5, NOW())
+       RETURNING *`,
+      [name, description, price, stock, category_id]
+    );
+
+    res.status(201).json({ message: 'Producto creado', product: result.rows[0] });
+  } catch (err) {
+    console.error('Error al crear producto:', err);
+    res.status(500).json({ error: 'Error al crear producto' });
   }
 });
 
