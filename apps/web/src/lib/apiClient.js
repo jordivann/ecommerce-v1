@@ -47,41 +47,34 @@ export async function getProfile(token) {
   });
   return res.json();
 }
+// Para pantalla PROFILE.JSX 
+export async function updateUserInfo(data) {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/auth/updateme`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
 
-// Estas dos funciones extras traen TODA la info de user y deja actualizar. Para pantalla PROFILE.JSX 
-// ✅ 1. Obtener perfil del usuario
-export async function getUserProfile(token) {
-  const res = await fetch(`${API_URL}/users/profile`, {
-    headers: {
-      Authorization: `Bearer ${token}`
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || 'Error al actualizar usuario');
     }
-  });
 
-  if (!res.ok) {
-    throw new Error('No se pudo obtener el perfil del usuario');
+    return await response.json();
+  } catch (error) {
+    console.error('🛑 Error en updateUserInfo:', error);
+    throw error;
   }
-
-  return res.json();
 }
 
-// ✅ 2. Actualizar datos del perfil (dirección, etc)
-export async function updateUserProfile(data, token) {
-  const res = await fetch(`${API_URL}/users/profile`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify(data)
-  });
 
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.error || 'Error al actualizar el perfil');
-  }
 
-  return res.json();
-}
+
 //
 // ===== ADMIN =====
 //
