@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import { useAuth } from './auth/AuthContext';
+import Profile from './pages/Profile';
 export default function App() {
   const { user, loading } = useAuth();
 
@@ -19,6 +20,15 @@ export default function App() {
           <Route index element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          
+          <Route
+            path="/profile"
+            element={
+              user
+                ? <Profile />
+                : <Navigate to="/login" replace />
+            }
+          />
           <Route
             path="/dashboard"
             element={
