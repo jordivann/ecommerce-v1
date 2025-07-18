@@ -5,6 +5,7 @@ import Pagination from '../components/Pagination';
 import Sidebar from '../components/Sidebar';
 import SearchBar from '../components/SearchBar';
 import Logo from '../components/Logo';
+import Loader from '../components/Loader';
 import './styles/Home.css';
 
 export default function Home() {
@@ -39,7 +40,7 @@ export default function Home() {
     loadData();
   }, []);
 
-  if (loading) return <p style={{ padding: 20 }}>Cargando…</p>;
+  if (loading) return <Loader />;
   if (error) return <p style={{ padding: 20 }}>Error: {error.message}</p>;
 
   const filtered = products.filter(p => {

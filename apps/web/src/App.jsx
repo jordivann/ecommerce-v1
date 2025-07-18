@@ -7,10 +7,13 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import { useAuth } from './auth/AuthContext';
 import Profile from './pages/Profile';
+import NotFound from './pages/NotFound';
+import Loader from './components/Loader';
+
 export default function App() {
   const { user, loading } = useAuth();
 
-  if (loading) return <p>Cargando sesión...</p>;
+  if (loading) return <Loader />;
 
 
   return (
@@ -38,7 +41,9 @@ export default function App() {
             }
           />
         </Route>
-      </Routes>
+        <Route path="*" element={<NotFound />} />
+      </Routes>    
+      {/* ...otras rutas */}
     </Router>
   );
 }

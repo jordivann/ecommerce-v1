@@ -7,7 +7,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const hideNavbarOnRoutes = ['/login', '/register'];
+  const hideNavbarOnRoutes = ['/login', '/Register'];
   const shouldHideNavbar = hideNavbarOnRoutes.includes(location.pathname);
 
   function handleLogout() {

@@ -8,9 +8,9 @@ export default function Login() {
       <div className="login-card">
         <h1 className="login-title">Iniciar sesión</h1>
         <p className="login-subtitle">Accede a tu cuenta</p>
-        <LoginForm onLogin={user => console.log('Sesión iniciada', user.role)} />
+        <LoginForm onLogin={user => console.log('Sesión iniciada', user.name)} />
         <div className="forgot-password">
-          <a href="/forgot-password">¿Olvidaste tu contraseña?</a>
+          ¿No Tenés cuenta? <a href="/Register">Registrate</a>
         </div>
       </div>
     </div>

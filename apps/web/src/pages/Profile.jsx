@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getProfile, updateUserInfo } from '../lib/apiClient';
 import { useAuth } from '../auth/AuthContext';
+import Loader from '../components/Loader';
 import './styles/Profile.css';
 
 export default function Profile() {
@@ -113,7 +114,7 @@ export default function Profile() {
     }
   };
 
-  if (loading) return <p className="loading">Cargando perfil…</p>;
+  if (loading) return <Loader />;
   if (error) return <p className="error-msg">{error}</p>;
 
   return (
@@ -173,7 +174,7 @@ export default function Profile() {
           <input type="text" name="country" value={form.country} onChange={handleChange} />
         </div>
 
-        <button class="btn" type="submit">Guardar Cambios</button>
+        <button className="btn" type="submit">Guardar Cambios</button>
 
         {message && <p className="success-msg">{message}</p>}
         {error && <p className="error-msg">{error}</p>}
