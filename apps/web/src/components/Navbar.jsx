@@ -89,9 +89,9 @@ export default function Navbar({ user, handleLogout, cartItemsCount = 0 }) {
                       </svg>
                     </button>
                     <div className="dropdown-menu">
-                      <Link to="/perfil" className="dropdown-item">Mi Perfil</Link>
+                      <Link to="/profile" className="dropdown-item">Mi Perfil</Link>
                       <Link to="/pedidos" className="dropdown-item">Mis Pedidos</Link>
-                      <Link to="/configuracion" className="dropdown-item">Configuración</Link>
+                      <Link to="/config" className="dropdown-item">Configuración</Link>
                       <div className="dropdown-divider"></div>
                       <button onClick={handleLogout} className="dropdown-item logout">
                         Cerrar Sesión

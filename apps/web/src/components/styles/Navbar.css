@@ -15,6 +15,8 @@
 }
 
 .container {
+  
+  width:100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
@@ -26,6 +28,9 @@
   color: white;
   font-size: 14px;
   padding: 8px 0;
+  height:25px;
+  display:flex;
+  align-items:center;
 }
 
 .top-bar {
@@ -59,6 +64,10 @@
   background: white;
   padding: 16px 0;
   border-bottom: 1px solid #e5e5e5;
+  height:100%;
+  max-height:70px;
+  display:flex;
+  align-items:center;
 }
 
 .navbar-content {
@@ -330,3 +339,4 @@
     display: block;
   }
 }
+ 

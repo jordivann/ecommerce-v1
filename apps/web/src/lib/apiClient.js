@@ -40,7 +40,7 @@ export async function loginUser(credentials) {
   return res.json();
 }
 
-// Perfil autenticado
+// Perfil autenticado ESTA FUNCION VERIFICA LA SESIÓN
 export async function getProfile(token) {
   const res = await fetch(`${API_URL}/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -48,6 +48,40 @@ export async function getProfile(token) {
   return res.json();
 }
 
+// Estas dos funciones extras traen TODA la info de user y deja actualizar. Para pantalla PROFILE.JSX 
+// ✅ 1. Obtener perfil del usuario
+export async function getUserProfile(token) {
+  const res = await fetch(`${API_URL}/users/profile`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (!res.ok) {
+    throw new Error('No se pudo obtener el perfil del usuario');
+  }
+
+  return res.json();
+}
+
+// ✅ 2. Actualizar datos del perfil (dirección, etc)
+export async function updateUserProfile(data, token) {
+  const res = await fetch(`${API_URL}/users/profile`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.error || 'Error al actualizar el perfil');
+  }
+
+  return res.json();
+}
 //
 // ===== ADMIN =====
 //
