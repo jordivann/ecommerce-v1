@@ -173,7 +173,7 @@ export default function Profile() {
           <input type="text" name="country" value={form.country} onChange={handleChange} />
         </div>
 
-        <button type="submit">Guardar Cambios</button>
+        <button class="btn" type="submit">Guardar Cambios</button>
 
         {message && <p className="success-msg">{message}</p>}
         {error && <p className="error-msg">{error}</p>}
