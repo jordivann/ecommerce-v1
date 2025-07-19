@@ -5,6 +5,7 @@ import Pagination from '../components/Pagination';
 import Sidebar from '../components/Sidebar';
 import SearchBar from '../components/SearchBar';
 import Logo from '../components/Logo';
+import Loader from '../components/Loader';
 import './styles/Home.css';
 
 export default function Home() {
@@ -16,11 +17,23 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [onlyInStock, setOnlyInStock] = useState(false);
+  const [onlyDiscounts, setOnlyDiscounts] = useState(false);
+  const [selectedVisibility, setSelectedVisibility] = useState('');
+  const [selectedBrand, setSelectedBrand] = useState('');
+  const [onlyOrganic, setOnlyOrganic] = useState(false);
+  const [onlySenasa, setOnlySenasa] = useState(false);
+
+  const [rawMinPrice, setRawMinPrice] = useState('');
+  const [rawMaxPrice, setRawMaxPrice] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [filterChangeCount, setFilterChangeCount] = useState(0);
 
   const perPage = 8;
 
   useEffect(() => {
-    
     async function loadData() {
       try {
         const [prods, cats] = await Promise.all([
@@ -39,16 +52,57 @@ export default function Home() {
     loadData();
   }, []);
 
-  if (loading) return <p style={{ padding: 20 }}>Cargando…</p>;
+  useEffect(() => {
+    if (isBlocked) return;
+    setFilterChangeCount(prev => prev + 1);
+  }, [rawMinPrice, rawMaxPrice]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setMinPrice(rawMinPrice);
+      setMaxPrice(rawMaxPrice);
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }, [rawMinPrice, rawMaxPrice]);
+
+  useEffect(() => {
+    if (filterChangeCount > 40) {
+      setIsBlocked(true);
+      setTimeout(() => {
+        setIsBlocked(false);
+        setFilterChangeCount(0);
+      }, 10000);
+    }
+  }, [filterChangeCount]);
+
+  if (loading) return <Loader />;
   if (error) return <p style={{ padding: 20 }}>Error: {error.message}</p>;
 
   const filtered = products.filter(p => {
-  const matchesName = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-  const matchesCategory = selectedCategory
-    ? p.category?.toLowerCase() === selectedCategory.toLowerCase()
-    : true;
-  return matchesName && matchesCategory;
-});
+    const matchesName = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory
+      ? p.category?.toLowerCase() === selectedCategory.toLowerCase()
+      : true;
+    const matchesStock = onlyInStock ? p.stock > 0 : true;
+    const now = new Date();
+    const matchesDiscount = onlyDiscounts
+      ? p.discount_percentage > 0 && (!p.discount_expiration || new Date(p.discount_expiration) > now)
+      : true;
+
+    const matchesVisibility = selectedVisibility === 'visible' ? p.visible === true
+      : selectedVisibility === 'hidden' ? p.visible === false
+      : true;
+    const matchesBrand = selectedBrand ? p.brand === selectedBrand : true;
+    const matchesOrganic = onlyOrganic ? p.organic === true : true;
+    const matchesSenasa = onlySenasa ? p.senasa === true : true;
+    const matchesMinPrice = minPrice ? p.price >= parseFloat(minPrice) : true;
+    const matchesMaxPrice = maxPrice ? p.price <= parseFloat(maxPrice) : true;
+
+    return matchesName && matchesCategory && matchesStock && matchesDiscount &&
+      matchesVisibility && matchesBrand && matchesOrganic && matchesSenasa &&
+      matchesMinPrice && matchesMaxPrice;
+  });
 
   const totalPages = Math.ceil(filtered.length / perPage);
   const start = (currentPage - 1) * perPage;
@@ -69,6 +123,24 @@ export default function Home() {
             onSearch={setSearchQuery}
             selectedCategory={selectedCategory}
             onSelectCategory={setSelectedCategory}
+            minPrice={rawMinPrice}
+            maxPrice={rawMaxPrice}
+            onMinPriceChange={(value) => !isBlocked && setRawMinPrice(value)}
+            onMaxPriceChange={(value) => !isBlocked && setRawMaxPrice(value)}
+            onlyInStock={onlyInStock}
+            onToggleInStock={() => setOnlyInStock(prev => !prev)}
+            onlyDiscounts={onlyDiscounts}
+            onToggleWithDiscounts={() => setOnlyDiscounts(prev => !prev)}
+            selectedVisibility={selectedVisibility}
+            onVisibilityChange={setSelectedVisibility}
+            brands={[...new Set(products.map(p => p.brand).filter(Boolean))]}
+            selectedBrand={selectedBrand}
+            onBrandSelect={setSelectedBrand}
+            onlyOrganic={onlyOrganic}
+            onToggleOrganic={() => setOnlyOrganic(prev => !prev)}
+            onlySenasa={onlySenasa}
+            onToggleSenasa={() => setOnlySenasa(prev => !prev)}
+            isBlocked={isBlocked}
           />
         </aside>
 

@@ -8,7 +8,6 @@ const router = Router();
 router.get('/profile', authRequired, async (req, res) => {
   try {
     const { id } = req.user;
-    console.log('📥 GET /profile - Buscando usuario con ID:', id);
 
     const { rows } = await pool.query(
       `SELECT id, name, email, role, created_at,
@@ -18,14 +17,11 @@ router.get('/profile', authRequired, async (req, res) => {
       [id]
     );
 
-    console.log('🧾 Resultado de query:', rows); // <-- ESTE
 
     if (rows.length === 0) {
-      console.log('⛔ Usuario no encontrado');
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    console.log('✅ Usuario encontrado:', rows[0]); // <-- ESTE
     res.json(rows[0]); // <--- SI ESTO NO EJECUTA, NADA FUNCIONA
   } catch (err) {
     console.error('❌ Error al obtener perfil:', err);

@@ -9,11 +9,12 @@ import {
   createProduct,
   deleteProduct
 } from '../lib/apiClient';
-import './styles/Dashboard.css'
+import ProductEditModal from '../components/dashboard/ProductEditModal';
+import ProductFormModal from '../components/dashboard/ProductFormModal';
+import './styles/Dashboard.css';
 
 import UserTable from '../components/dashboard/UserTable';
 import ProductTable from '../components/dashboard/ProductTable';
-import ProductFormModal from '../components/dashboard/ProductFormModal';
 
 export default function Dashboard() {
   const { user, token } = useAuth();
@@ -24,8 +25,25 @@ export default function Dashboard() {
   const [showModal, setShowModal] = useState(false);
 
   const [newProduct, setNewProduct] = useState({
-    name: '', price: '', stock: '', category_id: '', description: ''
+    name: '',
+    description: '',
+    image_url: '',
+    original_price: '',
+    price: '',
+    stock: '',
+    category_id: '',
+    brand: '',
+    tags: '',
+    unit: '',
+    visible: true,
+    discount_expiration: '',
+    weight_grams: '',
+    dimensions: '',
+    organic: false,
+    senasa: false,
+    rendimiento: ''
   });
+
 
   const [editingProductId, setEditingProductId] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -62,13 +80,39 @@ export default function Dashboard() {
   }
 
   async function handleCreateProduct() {
-    const created = await createProduct(newProduct, token);
+    const productToSend = {
+      ...newProduct,
+      tags: newProduct.tags
+        ? newProduct.tags.split(',').map(tag => tag.trim()).filter(Boolean)
+        : []
+    };
+
+    const created = await createProduct(productToSend, token);
     if (created.product) {
       setProducts(prev => [...prev, created.product]);
       setShowModal(false);
-      setNewProduct({ name: '', price: '', stock: '', category_id: '', description: '' });
+      setNewProduct({
+        name: '',
+        description: '',
+        image_url: '',
+        original_price: '',
+        price: '',
+        stock: '',
+        category_id: '',
+        brand: '',
+        tags: '',
+        unit: '',
+        visible: true,
+        discount_expiration: '',
+        weight_grams: '',
+        dimensions: '',
+        organic: false,
+        senasa: false,
+        rendimiento: ''
+      });
     }
   }
+
 
   function handleEdit(id, product) {
     setEditingProductId(id);
@@ -86,7 +130,8 @@ export default function Dashboard() {
 
       <UserTable users={users} onRoleChange={handleRoleChange} />
 
-      <button onClick={() => setShowModal(true)}>➕ Nuevo Producto</button>
+      <button onClick={() => {    console.log('Abrir modal');
+    setShowModal(true);}}>➕ Nuevo Producto</button>
 
       <ProductTable
         products={products}
@@ -99,7 +144,15 @@ export default function Dashboard() {
         onUpdateProduct={handleUpdateProduct}
         onDeleteProduct={handleDeleteProduct}
       />
-
+      
+      {editingProduct && (
+        <ProductEditModal
+          product={editingProduct}
+          onClose={handleCancelEdit}
+          onSave={handleUpdateProduct}
+        />
+      )}
+      {console.log('showModal?', showModal)}
       <ProductFormModal
         show={showModal}
         onClose={() => setShowModal(false)}

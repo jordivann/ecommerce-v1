@@ -56,9 +56,6 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
 
     const { email, password } = req.body;
-    console.log('📥 Login attempt:', email);          // 1️⃣  llega el request
-
-    console.log('📤 Password recibido:', password);
 
     try {
       const result = await pool.query(
@@ -66,17 +63,14 @@ router.post(
         [email]
       );
       const user = result.rows[0];
-      console.log('🔍 User found?', !!user);          // 2️⃣  existe el mail
-      console.log('📤 Password recibido:', user?.password);
       if (!user) return res.status(401).json({ error: 'Credenciales inválidas' });
 
       const match = await comparePassword(password, user.password);
-      console.log('🔑 Password match?', match);       // 3️⃣  coincide el pass
 
       if (!match) return res.status(401).json({ error: 'Credenciales inválidas' });
 
       const token = signToken({ id: user.id, role: user.role });
-      console.log('✅ Login OK, token emitido');      // 4️⃣  todo OK
+      console.log('✅ Login OK, token emitido');  
 
       res.json({
         token,
