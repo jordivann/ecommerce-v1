@@ -146,8 +146,6 @@ router.post('/products', authRequired('admin'), async (req, res) => {
     res.status(500).json({ error: 'Error al crear producto' });
   }
 });
-
-// Editar producto (actualización parcial + lógica de descuento)
 router.put('/products/:id', authRequired('admin'), async (req, res) => {
   const { id } = req.params;
   let {
@@ -171,18 +169,19 @@ router.put('/products/:id', authRequired('admin'), async (req, res) => {
   } = req.body;
 
   try {
+    // Limpieza extra: si no hay descuento real, quitar fecha
+    if (
+      price !== undefined &&
+      original_price !== undefined &&
+      parseFloat(price) === parseFloat(original_price)
+    ) {
+      discount_expiration = null;
+    }
+
     const fields = [];
     const values = [];
     let paramIndex = 1;
 
-    if (name !== undefined) {
-      fields.push(`name = $${paramIndex++}`);
-      values.push(name.trim());
-    }
-    if (description !== undefined) {
-      fields.push(`description = $${paramIndex++}`);
-      values.push(description.trim());
-    }
     if (price !== undefined) {
       price = parseFloat(price);
       fields.push(`price = $${paramIndex++}`);
@@ -208,10 +207,7 @@ router.put('/products/:id', authRequired('admin'), async (req, res) => {
       fields.push(`image_url = $${paramIndex++}`);
       values.push(image_url);
     }
-    if (brand !== undefined) {
-      fields.push(`brand = $${paramIndex++}`);
-      values.push(brand.trim());
-    }
+
     if (tags !== undefined) {
       fields.push(`tags = $${paramIndex++}`);
       values.push(tags);
@@ -224,10 +220,7 @@ router.put('/products/:id', authRequired('admin'), async (req, res) => {
       fields.push(`visible = $${paramIndex++}`);
       values.push(visible);
     }
-    if (discount_expiration !== undefined) {
-      fields.push(`discount_expiration = $${paramIndex++}`);
-      values.push(discount_expiration);
-    }
+
     if (weight_grams !== undefined) {
       fields.push(`weight_grams = $${paramIndex++}`);
       values.push(weight_grams);
@@ -248,6 +241,18 @@ router.put('/products/:id', authRequired('admin'), async (req, res) => {
       fields.push(`rendimiento = $${paramIndex++}`);
       values.push(rendimiento);
     }
+    if (name !== undefined) {
+  fields.push(`name = $${paramIndex++}`);
+  values.push(typeof name === 'string' ? name.trim() : '');
+}
+if (description !== undefined) {
+  fields.push(`description = $${paramIndex++}`);
+  values.push(typeof description === 'string' ? description.trim() : '');
+}
+if (brand !== undefined) {
+  fields.push(`brand = $${paramIndex++}`);
+  values.push(typeof brand === 'string' ? brand.trim() : '');
+}
 
 
     // Cálculo de descuento inteligente
@@ -263,6 +268,10 @@ router.put('/products/:id', authRequired('admin'), async (req, res) => {
       }
       fields.push(`discount_percentage = $${paramIndex++}`);
       values.push(discount);
+      if (discount <= 0) {
+        fields.push(`discount_expiration = $${paramIndex++}`);
+        values.push(null);
+      }
     }
 
     if (fields.length === 0) {
@@ -270,7 +279,6 @@ router.put('/products/:id', authRequired('admin'), async (req, res) => {
     }
 
     fields.push(`updated_at = NOW()`);
-
     values.push(id);
 
     const result = await pool.query(
@@ -283,9 +291,8 @@ router.put('/products/:id', authRequired('admin'), async (req, res) => {
 
     res.json({ message: 'Producto actualizado', product: result.rows[0] });
   } catch (err) {
-    console.error('Error al editar producto:', err);
+    console.error('Error al editar producto:', err.message, err.stack);
     res.status(500).json({ error: 'Error al editar producto' });
   }
 });
-
 export default router;

@@ -331,3 +331,44 @@ header {
     font-size: 0.7rem;
   }
 }
+
+/* SIDEBAR */
+.sidebar-panel {
+  padding: 1.5rem;
+  background: #f7f7f7;
+  border-right: 1px solid #ddd;
+  width: 280px;
+}
+
+.filter-block {
+  margin-bottom: 1.2rem;
+}
+
+.filter-block label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.4rem;
+}
+
+.price-range {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.category-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.category-list li {
+  padding: 0.3rem 0;
+  cursor: pointer;
+  color: #333;
+}
+
+.category-list li.active {
+  font-weight: bold;
+  color: #6a0dad;
+}
