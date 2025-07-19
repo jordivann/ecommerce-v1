@@ -146,7 +146,7 @@ export async function createProduct(data, token) {
   return res.json();
 }
 export async function getAdminCategories(token) {
-  const res = await fetch(`${API_URL}/dashboard/categories`, {
+  const res = await fetch(`${API_URL}/categories`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.json();

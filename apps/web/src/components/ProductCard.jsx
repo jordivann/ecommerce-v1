@@ -1,14 +1,110 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-const ProductCard = ({ product }) => (
-  <div className="product-card">
-    <img src={product.imageUrl} alt={product.name} />
-    <div className="info">
-      <h2>{product.name}</h2>
-      <p>{`$${product.price}`}</p>
-      <button>Agregar al carrito</button>
+const ProductCard = ({ product }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    // Aquí irá la lógica del carrito
+    console.log('Producto agregado:', product);
+    
+    // Efecto visual opcional
+    const button = e.target;
+    const originalText = button.textContent;
+    button.textContent = '¡Agregado!';
+    button.style.background = '#10b981';
+    
+    setTimeout(() => {
+      button.textContent = originalText;
+      button.style.background = '';
+    }, 1500);
+  };
+
+  return (
+    <div 
+      className="product-card"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="product-image-container">
+        {!imageLoaded && (
+          <div className="image-skeleton">
+            <div className="skeleton-shimmer"></div>
+          </div>
+        )}
+        <img 
+          src={product.imageUrl} 
+          alt={product.name}
+          onLoad={() => setImageLoaded(true)}
+          style={{ display: imageLoaded ? 'block' : 'none' }}
+        />
+        
+        {/* Badge de descuento si existe */}
+        {product.discount && (
+          <div className="discount-badge">
+            -{product.discount}%
+          </div>
+        )}
+        
+        {/* Badge de stock bajo */}
+        {product.stock && product.stock <= 5 && (
+          <div className="stock-badge">
+            ¡Últimas {product.stock} unidades!
+          </div>
+        )}
+      </div>
+      
+      <div className="info">
+        <h2 title={product.name}>{product.name}</h2>
+        
+        {/* Rating si existe */}
+        {product.rating && (
+          <div className="product-rating">
+            <div className="stars">
+              {[...Array(5)].map((_, i) => (
+                <span 
+                  key={i} 
+                  className={i < Math.floor(product.rating) ? 'star filled' : 'star'}
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+            <span className="rating-text">({product.reviewCount || 0})</span>
+          </div>
+        )}
+        
+        <div className="price-section">
+          {product.originalPrice && product.originalPrice > product.price ? (
+            <>
+              <span className="original-price">${product.originalPrice}</span>
+              <p className="current-price">{formatPrice(product.price)}</p>
+            </>
+          ) : (
+            <p className="current-price">{formatPrice(product.price)}</p>
+          )}
+        </div>
+        
+        <button 
+          className="add-to-cart-btn"
+          onClick={handleAddToCart}
+          disabled={product.stock === 0}
+        >
+          {product.stock === 0 ? 'Sin stock' : 'Agregar al carrito'}
+        </button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default ProductCard;

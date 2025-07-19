@@ -1,3 +1,5 @@
+
+
 import { Router } from 'express';
 import { pool } from '../db.js';
 import { authRequired } from '../middlewares/authMiddleware.js';
@@ -8,7 +10,7 @@ const router = Router();
 // 🏁 Dashboard admin welcome
 // ==============================
 router.get('/dashboard', authRequired('admin'), async (req, res) => {
-  res.json({ message: `Bienvenido al panel admin, usuario ID: ${req.user.id}` });
+  res.json({ message: `Bienvenido al panel admin, usuario ID: ${req.user.id} `});
 });
 
 // ==============================
@@ -51,24 +53,19 @@ router.put('/users/:id/role', authRequired('admin'), async (req, res) => {
   }
 });
 
+
+
 // ==============================
-// 📦 Productos
+// 📦 Productos (Admin)
 // ==============================
 
-// Obtener todos los productos (con nombre de categoría)
-router.get('/products', authRequired('admin'), async (req, res) => {
+// Obtener todos los productos (admin)
+router.get('/products', authRequired('admin'), async (_, res) => {
   try {
     const result = await pool.query(`
       SELECT
-        p.id,
-        p.name,
-        p.description,
-        p.price,
-        p.stock,
-        p.category_id,
-        c.name AS category,
-        p.image_url,
-        p.created_at
+        p.*,
+        c.name AS category
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
       ORDER BY p.name;
@@ -80,37 +77,68 @@ router.get('/products', authRequired('admin'), async (req, res) => {
   }
 });
 
-// Crear producto
+// Crear producto (con lógica inteligente)
 router.post('/products', authRequired('admin'), async (req, res) => {
-  const { name, description, price, stock, category_id } = req.body;
-
-  // Validaciones manuales simples
-  const nameRegex = /^[a-zA-Z0-9ÁÉÍÓÚÑáéíóúñ\s]{2,100}$/;
-  const descRegex = /^[\w\s.,;:¡!¿?"()\-]{0,300}$/;
-
-  if (!name || !nameRegex.test(name.trim())) {
-    return res.status(400).json({ error: 'Nombre inválido: solo letras y números, máx 100 caracteres' });
-  }
-
-  if (description && !descRegex.test(description.trim())) {
-    return res.status(400).json({ error: 'Descripción inválida: caracteres no permitidos o muy larga (máx 300)' });
-  }
-
-  if (isNaN(price) || price < 0) {
-    return res.status(400).json({ error: 'Precio inválido' });
-  }
-
-  if (!Number.isInteger(Number(stock)) || stock < 0) {
-    return res.status(400).json({ error: 'Stock inválido' });
-  }
-
   try {
-    const result = await pool.query(
-      `INSERT INTO products (name, description, price, stock, category_id, created_at)
-       VALUES ($1, $2, $3, $4, $5, NOW())
-       RETURNING *`,
-      [name.trim(), description?.trim(), price, stock, category_id]
-    );
+    let {
+      name,
+      description,
+      price,
+      original_price,
+      stock,
+      category_id,
+      image_url,
+      brand,
+      tags,
+      unit,
+      visible = true,
+      discount_expiration,
+    } = req.body;
+
+    if (!name || !original_price || isNaN(original_price)) {
+      return res.status(400).json({ error: 'Nombre y precio original son obligatorios' });
+    }
+
+    original_price = parseFloat(original_price);
+    price = parseFloat(price);
+
+    // Descuento automático
+    let discount_percentage = 0;
+    if (price && original_price && price < original_price) {
+      discount_percentage = Math.round(100 * (1 - price / original_price));
+    } else {
+      price = original_price;
+    }
+
+    // Si descuento expiró → reiniciar
+    if (discount_expiration && new Date(discount_expiration) < new Date()) {
+      discount_percentage = 0;
+      price = original_price;
+    }
+
+    // Stock visible automático
+    if (stock === 0) {
+      visible = false;
+    }
+
+    const result = await pool.query(`
+      INSERT INTO products (
+        name, description, price, original_price, discount_percentage,
+        stock, category_id, image_url, brand, tags, unit, visible,
+        discount_expiration, created_at, updated_at,
+        weight_grams, dimensions, organic, senasa, rendimiento
+      ) VALUES (
+        $1, $2, $3, $4, $5,
+        $6, $7, $8, $9, $10, $11, $12,
+        $13, NOW(), NOW(),
+        $14, $15, $16, $17, $18
+      ) RETURNING *;
+    `, [
+      name.trim(), description?.trim(), price, original_price, discount_percentage,
+      stock, category_id, image_url, brand?.trim(), tags, unit, visible,
+      discount_expiration,
+      weight_grams, dimensions, organic, senasa, rendimiento
+    ]);
 
     res.status(201).json({ message: 'Producto creado', product: result.rows[0] });
   } catch (err) {
@@ -119,10 +147,28 @@ router.post('/products', authRequired('admin'), async (req, res) => {
   }
 });
 
-// Editar producto (actualización parcial)
+// Editar producto (actualización parcial + lógica de descuento)
 router.put('/products/:id', authRequired('admin'), async (req, res) => {
   const { id } = req.params;
-  const { name, description, price, stock, category_id, image_url } = req.body;
+  let {
+    name,
+    description,
+    price,
+    original_price,
+    stock,
+    category_id,
+    image_url,
+    brand,
+    tags,
+    unit,
+    visible,
+    discount_expiration,
+    weight_grams,
+    dimensions,
+    organic,
+    senasa,
+    rendimiento
+  } = req.body;
 
   try {
     const fields = [];
@@ -138,12 +184,21 @@ router.put('/products/:id', authRequired('admin'), async (req, res) => {
       values.push(description.trim());
     }
     if (price !== undefined) {
+      price = parseFloat(price);
       fields.push(`price = $${paramIndex++}`);
       values.push(price);
+    }
+    if (original_price !== undefined) {
+      original_price = parseFloat(original_price);
+      fields.push(`original_price = $${paramIndex++}`);
+      values.push(original_price);
     }
     if (stock !== undefined) {
       fields.push(`stock = $${paramIndex++}`);
       values.push(stock);
+      if (stock === 0 && visible === undefined) {
+        visible = false;
+      }
     }
     if (category_id !== undefined) {
       fields.push(`category_id = $${paramIndex++}`);
@@ -153,10 +208,68 @@ router.put('/products/:id', authRequired('admin'), async (req, res) => {
       fields.push(`image_url = $${paramIndex++}`);
       values.push(image_url);
     }
+    if (brand !== undefined) {
+      fields.push(`brand = $${paramIndex++}`);
+      values.push(brand.trim());
+    }
+    if (tags !== undefined) {
+      fields.push(`tags = $${paramIndex++}`);
+      values.push(tags);
+    }
+    if (unit !== undefined) {
+      fields.push(`unit = $${paramIndex++}`);
+      values.push(unit);
+    }
+    if (visible !== undefined) {
+      fields.push(`visible = $${paramIndex++}`);
+      values.push(visible);
+    }
+    if (discount_expiration !== undefined) {
+      fields.push(`discount_expiration = $${paramIndex++}`);
+      values.push(discount_expiration);
+    }
+    if (weight_grams !== undefined) {
+      fields.push(`weight_grams = $${paramIndex++}`);
+      values.push(weight_grams);
+    }
+    if (dimensions !== undefined) {
+      fields.push(`dimensions = $${paramIndex++}`);
+      values.push(dimensions);
+    }
+    if (organic !== undefined) {
+      fields.push(`organic = $${paramIndex++}`);
+      values.push(organic);
+    }
+    if (senasa !== undefined) {
+      fields.push(`senasa = $${paramIndex++}`);
+      values.push(senasa);
+    }
+    if (rendimiento !== undefined) {
+      fields.push(`rendimiento = $${paramIndex++}`);
+      values.push(rendimiento);
+    }
+
+
+    // Cálculo de descuento inteligente
+    if (price !== undefined && original_price !== undefined) {
+      let discount = 0;
+      if (discount_expiration && new Date(discount_expiration) < new Date()) {
+        discount = 0;
+        price = original_price;
+        fields.push(`price = $${paramIndex++}`);
+        values.push(price);
+      } else if (original_price > price) {
+        discount = Math.round(100 * (1 - price / original_price));
+      }
+      fields.push(`discount_percentage = $${paramIndex++}`);
+      values.push(discount);
+    }
 
     if (fields.length === 0) {
       return res.status(400).json({ error: 'No se proporcionaron campos para actualizar' });
     }
+
+    fields.push(`updated_at = NOW()`);
 
     values.push(id);
 
@@ -172,20 +285,6 @@ router.put('/products/:id', authRequired('admin'), async (req, res) => {
   } catch (err) {
     console.error('Error al editar producto:', err);
     res.status(500).json({ error: 'Error al editar producto' });
-  }
-});
-
-// ==============================
-// 📁 Categorías
-// ==============================
-
-router.get('/categories', authRequired('admin'), async (req, res) => {
-  try {
-    const result = await pool.query('SELECT id, name FROM categories ORDER BY name');
-    res.json(result.rows);
-  } catch (err) {
-    console.error('Error al obtener categorías:', err);
-    res.status(500).json({ error: 'Error al obtener categorías' });
   }
 });
 
