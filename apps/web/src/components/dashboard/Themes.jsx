@@ -60,17 +60,39 @@ export default function WishlistAnalytics() {
       <ul className="theme-list">
         {data.map(theme => (
           <li key={theme.id} className={`theme-item ${theme.activo ? 'activo' : ''}`}>
-            <strong>{theme.nombre}</strong>
-            {theme.activo && <span className="badge-activo">Activo</span>}
-            <button
-              onClick={() => handleActivate(theme.id)}
-              disabled={theme.activo || activatingId === theme.id}
-            >
-              {theme.activo ? 'Activo' : (activatingId === theme.id ? 'Activando...' : 'Activar')}
-            </button>
-          </li>
-        ))}
-      </ul>
+            <div className="theme-preview">
+                <div
+                className="color-block primary"
+                style={{ backgroundColor: theme.variables["--color-primary"] }}
+                />
+                <div
+                className="color-block secondary"
+                style={{ backgroundColor: theme.variables["--color-secondary"] }}
+                />
+                <div
+                className="color-block bg"
+                style={{ backgroundColor: theme.variables["--color-bg-soft"] }}
+                />
+                <div
+                className="color-block tab"
+                style={{ backgroundColor: theme.variables["--color-tab-active"] }}
+                />
+            </div>
+
+            <div className="theme-info">
+                <strong>{theme.nombre}</strong>
+                {theme.activo && <span className="badge-activo">Activo</span>}
+                <button
+                onClick={() => handleActivate(theme.id)}
+                disabled={theme.activo || activatingId === theme.id}
+                >
+                {theme.activo ? 'Activo' : (activatingId === theme.id ? 'Activando...' : 'Activar')}
+                </button>
+            </div>
+            </li>
+
+            ))}
+        </ul>
     </div>
   );
 }
