@@ -207,3 +207,14 @@ export const removeFromWishlist = async (product_id) => {
   return res.json();
 };
 
+export const getWishlistAnalytics = async () => {
+  const token = localStorage.getItem('token');
+  const res = await fetch(`${API_URL}/wishlistAdmin`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  if (!res.ok) throw new Error('Error al obtener wishlist');
+  return res.json();
+};
+
