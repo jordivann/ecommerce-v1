@@ -242,36 +242,48 @@ router.put('/products/:id', authRequired('admin'), async (req, res) => {
       values.push(rendimiento);
     }
     if (name !== undefined) {
-  fields.push(`name = $${paramIndex++}`);
-  values.push(typeof name === 'string' ? name.trim() : '');
-}
-if (description !== undefined) {
-  fields.push(`description = $${paramIndex++}`);
-  values.push(typeof description === 'string' ? description.trim() : '');
-}
-if (brand !== undefined) {
-  fields.push(`brand = $${paramIndex++}`);
-  values.push(typeof brand === 'string' ? brand.trim() : '');
-}
+      fields.push(`name = $${paramIndex++}`);
+      values.push(typeof name === 'string' ? name.trim() : '');
+    }
+    if (description !== undefined) {
+      fields.push(`description = $${paramIndex++}`);
+      values.push(typeof description === 'string' ? description.trim() : '');
+    }
+    if (brand !== undefined) {
+      fields.push(`brand = $${paramIndex++}`);
+      values.push(typeof brand === 'string' ? brand.trim() : '');
+    }
 
 
     // Cálculo de descuento inteligente
-    if (price !== undefined && original_price !== undefined) {
+   if (price !== undefined && original_price !== undefined) {
       let discount = 0;
+
+      // Si se especificó una fecha y ya expiró → cancelar descuento
       if (discount_expiration && new Date(discount_expiration) < new Date()) {
         discount = 0;
         price = original_price;
+
         fields.push(`price = $${paramIndex++}`);
         values.push(price);
-      } else if (original_price > price) {
+
+        fields.push(`discount_expiration = $${paramIndex++}`);
+        values.push(null); // limpiar fecha vencida
+      }
+
+      // Si el precio es menor que el original → calcular descuento
+      else if (original_price > price) {
         discount = Math.round(100 * (1 - price / original_price));
       }
-      fields.push(`discount_percentage = $${paramIndex++}`);
-      values.push(discount);
-      if (discount <= 0) {
+
+      // Si no hay descuento real → forzar limpieza de fecha
+      if (discount === 0 && !fields.includes('discount_expiration')) {
         fields.push(`discount_expiration = $${paramIndex++}`);
         values.push(null);
       }
+
+      fields.push(`discount_percentage = $${paramIndex++}`);
+      values.push(discount);
     }
 
     if (fields.length === 0) {
@@ -295,4 +307,6 @@ if (brand !== undefined) {
     res.status(500).json({ error: 'Error al editar producto' });
   }
 });
+
+
 export default router;

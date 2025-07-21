@@ -9,6 +9,9 @@ import categoriesRouter from './routes/categories.js';
 import authRouter from './routes/auth.js';
 import adminRouter from './routes/admin.js';
 
+import wishlistRouter from './routes/wishlist.js';
+
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 
@@ -25,6 +28,7 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/dashboard', adminRouter);
 app.use('/api/v1/products', productsRouter);  
 app.use('/api/v1/categories', categoriesRouter);  
+app.use('/api/v1/wishlist', wishlistRouter);
 
 (async () => {
   try {

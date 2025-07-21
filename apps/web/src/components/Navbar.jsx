@@ -1,11 +1,16 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import WishlistModal from './WishlistModal';
 import './styles/Navbar.css'
+import SearchBar from './SearchBar';
 
 export default function Navbar({ user, handleLogout, cartItemsCount = 0 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showWishlist, setShowWishlist] = useState(false);
+  
+
 
   const categories = [
     { name: 'Electrónicos', href: '/categoria/electronicos' },
@@ -51,16 +56,21 @@ export default function Navbar({ user, handleLogout, cartItemsCount = 0 }) {
               <span>TiendaPro</span>
             </Link>
 
-
+              {/* <SearchBar  value={searchQuery} onSearch={setSearchQuery} /> */}
             {/* Right side actions */}
             <div className="navbar-actions">
               {/* Wishlist */}
-              <Link to="/favoritos" className="nav-action">
-                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-                <span className="nav-label">Favoritos</span>
-              </Link>
+              {user && (
+                  <>
+                    <button onClick={() => setShowWishlist(true)} className="nav-action">
+                      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                      <span className="nav-label">Favoritos</span>
+                    </button>
+                    <WishlistModal open={showWishlist} onClose={() => setShowWishlist(false)} />
+                  </>
+                )}
 
               {/* Cart */}
               <Link to="/carrito" className="nav-action cart-action">
@@ -127,7 +137,12 @@ export default function Navbar({ user, handleLogout, cartItemsCount = 0 }) {
           <div className="mobile-menu-content">
 
             <div className="mobile-actions">
-              <Link to="/favoritos" onClick={() => setIsMenuOpen(false)}>Favoritos</Link>
+              {user && (
+                <button onClick={() => { setShowWishlist(true); setIsMenuOpen(false); }}>
+                  Favoritos
+                </button>
+              )}
+
               <Link to="/carrito" onClick={() => setIsMenuOpen(false)}>Carrito</Link>
               {user ? (
                 <>

@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
+import FavouriteButton from './FavouriteButton'; 
+
 
 const ProductCard = ({ product }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+
+
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('es-AR', {
@@ -29,13 +33,14 @@ const ProductCard = ({ product }) => {
       button.style.background = '';
     }, 1500);
   };
-
+  
   return (
     <div 
-      className="product-card"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    className="product-card"
+    onMouseEnter={() => setIsHovered(true)}
+    onMouseLeave={() => setIsHovered(false)}
     >
+      <FavouriteButton productId={product.id} />
       <div className="product-image-container">
         {!imageLoaded && (
           <div className="image-skeleton">
@@ -91,10 +96,11 @@ const ProductCard = ({ product }) => {
               <p className="current-price">{formatPrice(product.price)}</p>
             </>
           ) : (
-            <p className="current-price">{formatPrice(product.price)}</p>
+            <p className="current-price noDiscount">{formatPrice(product.price)}</p>
           )}
         </div>
-        
+
+
         <button 
           className="add-to-cart-btn"
           onClick={handleAddToCart}

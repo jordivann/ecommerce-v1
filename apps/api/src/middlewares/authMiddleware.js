@@ -10,6 +10,8 @@ export function authRequired(role = null) {
       req.user = decoded; // { id, role }
       next();
     } catch {
+      
+      console.log('🛑 Usuario no autenticado');
       res.sendStatus(401);
     }
   };
