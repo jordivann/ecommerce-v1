@@ -3,9 +3,7 @@ import { pool } from '../db.js';
 import { authRequired } from '../middlewares/authMiddleware.js';
 const router = Router();
 router.get('/', authRequired() ,async (req, res) => {
-    
-  console.log('📤 GET /wishlist ejecutado');
-  try {
+      try {
     const userId = req.user.id;
 
     const { rows } = await pool.query(`
@@ -17,20 +15,16 @@ router.get('/', authRequired() ,async (req, res) => {
     `, [userId]);
 
     res.json(rows);
-    console.log(res);
   } catch (err) {
     console.error('Error al obtener wishlist:', err);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
 router.post('/', authRequired(), async (req, res) => {
-  console.log('📤 POST /wishlist ejecutado');
   try {
     const userId = req.user.id;
     const { product_id } = req.body;
 
-    console.log('🧾 user_id:', userId);
-    console.log('🧾 product_id:', product_id);
 
     if (!product_id) {
       return res.status(400).json({ error: 'Falta product_id' });
@@ -50,7 +44,6 @@ router.post('/', authRequired(), async (req, res) => {
 });
 
 router.delete('/:product_id', authRequired(), async (req, res) => {
-      console.log('📤 DELETE /wishlist ejecutado');
   try {
     const userId = req.user.id;
     const { product_id } = req.params;

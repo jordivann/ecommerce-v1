@@ -5,7 +5,6 @@ import { authRequired } from '../middlewares/authMiddleware.js';
 const router = Router();
 
 router.get('/', authRequired('admin'), async (req, res) => {
-  console.log('📊 GET /admin/wishlist ejecutado');
   try {
     const { rows } = await pool.query(`
       SELECT 
