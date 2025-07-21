@@ -7,14 +7,13 @@ import SearchBar from '../components/SearchBar';
 import Logo from '../components/Logo';
 import Loader from '../components/Loader';
 import './styles/Home.css';
-
+import { useOutletContext } from 'react-router-dom';
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [onlyInStock, setOnlyInStock] = useState(false);
@@ -23,14 +22,14 @@ export default function Home() {
   const [selectedBrand, setSelectedBrand] = useState('');
   const [onlyOrganic, setOnlyOrganic] = useState(false);
   const [onlySenasa, setOnlySenasa] = useState(false);
-
+  
   const [rawMinPrice, setRawMinPrice] = useState('');
   const [rawMaxPrice, setRawMaxPrice] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [isBlocked, setIsBlocked] = useState(false);
   const [filterChangeCount, setFilterChangeCount] = useState(0);
-
+  const { searchQuery, setSearchQuery } = useOutletContext();
   const perPage = 8;
 
   useEffect(() => {
@@ -112,7 +111,7 @@ export default function Home() {
     <>
       <header className="topbar">
         <Logo />
-        <SearchBar value={searchQuery} onSearch={setSearchQuery} />
+        {/* <SearchBar value={searchQuery} onSearch={setSearchQuery} /> */}
       </header>
 
       <div className="container layout">
@@ -149,9 +148,15 @@ export default function Home() {
             {selectedCategory ? `Categoría: ${selectedCategory}` : 'Todos los productos'}
           </h2>
           <div className="product-grid">
-            {pageItems.map(p => (
-              <ProductCard key={p.id} product={p} />
-            ))}
+            {pageItems.length === 0 ? (
+              <p style={{ padding: '1rem', fontSize: '1.1rem', color: '#777' }}>
+                No se encontraron productos que coincidan con tu búsqueda.
+              </p>
+            ) : (
+              pageItems.map(p => (
+                <ProductCard key={p.id} product={p} />
+              ))
+            )}
           </div>
 
           <Pagination

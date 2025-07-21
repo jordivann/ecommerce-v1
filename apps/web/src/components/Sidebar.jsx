@@ -28,18 +28,6 @@ export default function Sidebar({
     <div className="sidebar-panel">
       <h2>🔍 Filtros</h2>
 
-      {/* Búsqueda por nombre */}
-      <div className="filter-block">
-        <label htmlFor="sidebar-search">Buscar por nombre:</label>
-        <input
-          id="sidebar-search"
-          type="text"
-          value={searchQuery}
-          onChange={(e) => onSearch(e.target.value)}
-          placeholder="Nombre del producto"
-        />
-      </div>
-
       {/* Categorías */}
       <div className="filter-block">
         <label>Categorías:</label>
@@ -73,7 +61,6 @@ export default function Sidebar({
             placeholder="Mín"
             disabled={isBlocked}
           />
-          <span> - </span>
           <input
             type="number"
             value={maxPrice}

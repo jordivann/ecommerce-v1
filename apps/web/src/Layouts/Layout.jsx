@@ -1,9 +1,12 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../auth/AuthContext';
+import { useState} from 'react'
 
 export default function Layout() {
   const { user, logout } = useAuth();
+  
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -19,12 +22,12 @@ export default function Layout() {
     <div>
       {!shouldHideNavbar && (
         <>
-          <Navbar user={user} handleLogout={handleLogout} />
+          <Navbar user={user} handleLogout={handleLogout} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
           <hr />
         </>
       )}
 
-      <Outlet />
+      <Outlet context={{ searchQuery, setSearchQuery }} />
     </div>
   );
 }

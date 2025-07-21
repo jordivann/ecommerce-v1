@@ -4,10 +4,9 @@ import WishlistModal from './WishlistModal';
 import './styles/Navbar.css'
 import SearchBar from './SearchBar';
 
-export default function Navbar({ user, handleLogout, cartItemsCount = 0 }) {
+export default function Navbar({ user, handleLogout, cartItemsCount = 0 , searchQuery, setSearchQuery }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [showWishlist, setShowWishlist] = useState(false);
   
 
@@ -56,7 +55,7 @@ export default function Navbar({ user, handleLogout, cartItemsCount = 0 }) {
               <span>TiendaPro</span>
             </Link>
 
-              {/* <SearchBar  value={searchQuery} onSearch={setSearchQuery} /> */}
+            <SearchBar value={searchQuery} onSearch={setSearchQuery} />
             {/* Right side actions */}
             <div className="navbar-actions">
               {/* Wishlist */}
