@@ -163,3 +163,47 @@ export async function getPublicCategories() {
   if (!res.ok) throw new Error('Error al cargar categorías');
   return res.json();
 }
+
+
+// WISHLIST
+export const getWishlist = async () => {
+  const token = localStorage.getItem('token');
+  const res = await fetch(`${API_URL}/wishlist`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  if (!res.ok) throw new Error('Error al obtener wishlist');
+  return res.json();
+};
+
+export const addToWishlist = async (product_id) => {
+  const token = localStorage.getItem('token');
+  console.log('ADD TO WISHLIST', product_id);
+  const res = await fetch(`${API_URL}/wishlist`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ product_id }),
+  });
+
+  if (!res.ok) throw new Error('Error al agregar a wishlist');
+  return res.json();
+};
+
+export const removeFromWishlist = async (product_id) => {
+  const token = localStorage.getItem('token');
+  console.log('REMOVE FROM WISHLIST', product_id);
+  const res = await fetch(`${API_URL}/wishlist/${product_id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (!res.ok) throw new Error('Error al eliminar de wishlist');
+  return res.json();
+};
+
