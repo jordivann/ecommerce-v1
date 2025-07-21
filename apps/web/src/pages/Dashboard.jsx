@@ -16,6 +16,7 @@ import './styles/Dashboard.css';
 import UserTable from '../components/dashboard/UserTable';
 import ProductTable from '../components/dashboard/ProductTable';
 import WishlistAnalytics from '../components/dashboard/WishlistAnalytics';
+import Themes from '../components/dashboard/Themes'
 
 export default function Dashboard() {
   const { user, token } = useAuth();
@@ -193,6 +194,12 @@ export default function Dashboard() {
         >
           Wishlist
         </button>
+        <button
+          className={activeTab === 'themes' ? 'active' : ''}
+          onClick={() => setActiveTab('themes')}
+        >
+          Themes
+        </button>
       </div>
 
 
@@ -241,6 +248,8 @@ export default function Dashboard() {
         )}
 
         {activeTab === 'wishlist' && <WishlistAnalytics />}
+        
+        {activeTab === 'themes' && <Themes />}
       </div>
     </div>
   );

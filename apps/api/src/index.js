@@ -11,6 +11,7 @@ import adminRouter from './routes/admin.js';
 
 import wishlistRouter from './routes/wishlist.js';
 import wishlistAdminRouter from './routes/wishlistAdmin.js';
+import themeRouter from './routes/theme.js';
 
 
 const app = express();
@@ -31,6 +32,7 @@ app.use('/api/v1/products', productsRouter);
 app.use('/api/v1/categories', categoriesRouter);  
 app.use('/api/v1/wishlist', wishlistRouter);
 app.use('/api/v1/wishlistAdmin', wishlistAdminRouter);
+app.use('/api/v1/theme', themeRouter);
 
 (async () => {
   try {

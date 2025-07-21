@@ -9,7 +9,7 @@ import { useAuth } from './auth/AuthContext';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 import Loader from './components/Loader';
-
+import ThemeLoader from './components/dashboard/ThemeLoader';
 export default function App() {
   const { user, loading } = useAuth();
 
@@ -17,6 +17,7 @@ export default function App() {
 
 
   return (
+    <ThemeLoader>
     <Router>
       <Routes>
         <Route path="/" element={<Layout />}>
@@ -45,5 +46,6 @@ export default function App() {
       </Routes>    
       {/* ...otras rutas */}
     </Router>
+    </ThemeLoader>
   );
 }

@@ -309,4 +309,46 @@ router.put('/products/:id', authRequired('admin'), async (req, res) => {
 });
 
 
+// ==============================
+// 📦 THEMES (Admin)
+// ==============================
+
+// Obtener todos los productos (admin)
+router.get('/themes', authRequired('admin'), async (_, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT * FROM themes;
+    `);
+    console.log(result)
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error al obtener temas:', err);
+    res.status(500).json({ error: 'Error al obtener temas' });
+  }
+});
+
+router.post('/themes/:id/activate', authRequired('admin'), async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await pool.query('BEGIN');
+
+    // Desactiva todos los temas
+    await pool.query('UPDATE themes SET activo = FALSE');
+
+    // Activa el tema seleccionado
+    await pool.query('UPDATE themes SET activo = TRUE WHERE id = $1', [id]);
+
+    await pool.query('COMMIT');
+    res.json({ success: true, message: `Tema ${id} activado.` });
+
+  } catch (err) {
+    await pool.query('ROLLBACK');
+    console.error('Error al activar tema:', err);
+    res.status(500).json({ error: 'Error al activar el tema' });
+  }
+});
+
+
+
 export default router;
