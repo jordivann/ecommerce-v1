@@ -13,7 +13,7 @@
 }
 
 .wishlist-modal {
-  background: #fff;
+  background: var(--color-light);
   border-radius: 12px;
   padding: 2rem;
   width: 90%;
@@ -54,7 +54,7 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .wishlist-image {
@@ -67,11 +67,11 @@
 .wishlist-name {
   flex-grow: 1;
   font-weight: 500;
-  color: #333;
+  color: var(--color-dark);
 }
 
 .wishlist-remove-btn {
-  background: #ef4444;
+  background: var(--color-danger);
   color: white;
   border: none;
   padding: 0.5rem 0.75rem;
@@ -82,7 +82,7 @@
 }
 
 .wishlist-remove-btn:hover {
-  background: #dc2626;
+  background: var(--color-danger-hover);
 }
 
 .wishlist-close-btn {

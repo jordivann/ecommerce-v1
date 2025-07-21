@@ -1,10 +1,43 @@
 :root {
-  --color-primary:   #DBB173; /* beige/ocre */
-  --color-secondary: #E9E16F; /* amarillo pálido */
-  --color-dark:      #291109; /* marrón oscuro */
-  --color-gray:      #7A706A; /* gris topo */
-  --color-light:     #F2EEEC; /* off‑white */
+  /* Paleta base */
+  --color-primary:        #DBB173;  /* beige/ocre */
+  --color-secondary:      #E9E16F;  /* amarillo pálido */
+  --color-dark:           #291109;  /* marrón oscuro */
+  --color-gray:           #7A706A;  /* gris topo */
+  --color-light:          #F2EEEC;  /* off-white */
+
+  /* Colores funcionales */
+  --color-success:        #10b981;
+  --color-warning:        #facc15;
+  --color-warning-hover:  #eab308;
+  --color-danger:         #ef4444;
+  --color-danger-hover:   #dc2626;
+  --color-info:           #2563eb;
+  --color-info-hover:     #1d4ed8;
+  --color-stock:          rgba(251, 146, 60, 0.9);
+
+  /* Neutrales / UI */
+  --color-muted:          #999999;
+  --color-border:         #ddd;
+  --color-border-light:   #ccc;
+  --color-border-soft:    #e0e0e0;
+  --color-bg-soft:        #fafafa;
+  --color-bg-hover:       #f0f0f0;
+  --color-tab-active:     var(--color-info);
+  --color-tab-inactive:   #e5e7eb;
+  --color-tab-text:       #111827;
+
+  /* Ratings */
+  --color-rating-empty:   #d1d5db;
+  --color-rating-fill:    #fbbf24;
+  --color-rating-text:    #6b7280;
+
+  /* Skeleton loaders */
+  --color-skeleton-1:     #f0f0f0cf;
+  --color-skeleton-2:     #f0f0f0cf;
 }
+
+
 
 * {
   box-sizing: border-box;

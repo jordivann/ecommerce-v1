@@ -22,7 +22,6 @@ const ProductCardAdmin = ({
     category,
     weight_grams
   } = product;
-
   const isDiscountActive = discount_percentage > 0 &&
     (!discount_expiration || new Date(discount_expiration) > new Date());
 
@@ -31,7 +30,7 @@ const ProductCardAdmin = ({
       <div className="image-section">
         <img src={image_url || '/img/default-product.png'} alt={name} />
         {isDiscountActive && (
-          <span className="discount-badge">-{discount_percentage}%</span>
+          <span className="discount-badge-admin">-{discount_percentage}%</span>
         )}
         {!visible && (
           <span className="visibility-badge">Oculto</span>

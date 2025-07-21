@@ -1,17 +1,14 @@
-/* Estilos para Register de Ecommerce - Más Atractivo */
-
 .register-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 30%, #cbd5e0 100%);
+  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-bg-soft) 30%, var(--color-border-soft) 100%);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   position: relative;
   overflow: hidden;
 }
 
-/* Elementos decorativos de fondo más sutiles */
 .register-container::before {
   content: '';
   position: absolute;
@@ -19,7 +16,7 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(102, 126, 234, 0.05) 1px, transparent 1px);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.05) 1px, transparent 1px);
   background-size: 60px 60px;
   animation: float 25s ease-in-out infinite;
 }
@@ -42,7 +39,6 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Decoración superior más elegante */
 .register-card::before {
   content: '';
   position: absolute;
@@ -50,7 +46,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+  background: linear-gradient(90deg, var(--color-info) 0%, var(--color-dark) 50%, var(--color-info) 100%);
   background-size: 200% 200%;
   animation: gradient-shift 4s ease infinite;
 }
@@ -67,19 +63,19 @@
 }
 
 .register-title {
-  color: #2d3748;
+  color: var(--color-dark);
   font-size: 1.9rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
   letter-spacing: -0.025em;
-  background: linear-gradient(135deg, #4a5568, #2d3748);
+  background: linear-gradient(135deg, var(--color-gray), var(--color-dark));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .register-subtitle {
-  color: #718096;
+  color: var(--color-muted);
   font-size: 1rem;
   margin-bottom: 0.5rem;
 }
@@ -97,17 +93,17 @@
   align-items: center;
   gap: 0.3rem;
   font-size: 0.8rem;
-  color: #4a5568;
-  background: rgba(102, 126, 234, 0.05);
+  color: var(--color-gray);
+  background: rgba(37, 99, 235, 0.05);
   padding: 0.4rem 0.9rem;
   border-radius: 20px;
-  border: 1px solid rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(37, 99, 235, 0.1);
 }
 
 .benefit-icon {
   width: 12px;
   height: 12px;
-  color: #667eea;
+  color: var(--color-info);
 }
 
 .register-form {
@@ -123,36 +119,35 @@
 .form-input {
   width: 100%;
   padding: 1rem 1.25rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--color-border-soft);
   border-radius: 12px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background: #fafafa;
+  background: var(--color-bg-soft);
   box-sizing: border-box;
   position: relative;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #4a5568;
+  border-color: var(--color-gray);
   background: white;
-  box-shadow: 0 0 0 4px rgba(74, 85, 104, 0.1);
+  box-shadow: 0 0 0 4px rgba(122, 112, 106, 0.1);
   transform: translateY(-2px);
 }
 
 .form-input::placeholder {
-  color: #a0aec0;
+  color: var(--color-muted);
   font-weight: 400;
 }
 
 .form-input:valid {
-  border-color: #48bb78;
+  border-color: var(--color-success);
 }
 
-/* Indicador de fuerza de contraseña */
 .password-strength {
   height: 4px;
-  background: #e2e8f0;
+  background: var(--color-border-soft);
   border-radius: 2px;
   margin-top: 0.5rem;
   overflow: hidden;
@@ -164,14 +159,14 @@
   transition: all 0.3s ease;
 }
 
-.strength-weak { background: #fc8181; width: 33%; }
-.strength-medium { background: #fbd38d; width: 66%; }
-.strength-strong { background: #68d391; width: 100%; }
+.strength-weak    { background: var(--color-danger); width: 33%; }
+.strength-medium  { background: var(--color-warning); width: 66%; }
+.strength-strong  { background: var(--color-success); width: 100%; }
 
 .register-button {
   width: 100%;
   padding: 1rem;
-  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+  background: linear-gradient(135deg, var(--color-gray) 0%, var(--color-dark) 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -212,63 +207,62 @@
   text-align: center;
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--color-border-soft);
 }
 
 .login-link p {
-  color: #718096;
+  color: var(--color-muted);
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
 }
 
 .login-link a {
-  color: #4a5568;
+  color: var(--color-gray);
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
 .login-link a:hover {
-  color: #2d3748;
+  color: var(--color-dark);
   text-decoration: underline;
 }
 
-/* Efectos de carga */
 .loading {
   opacity: 0.7;
   pointer-events: none;
 }
 
 .loading .register-button {
-  background: #a0aec0;
+  background: var(--color-muted);
 }
 
-/* Responsive */
 @media (max-width: 480px) {
   .register-card {
     margin: 1rem;
     padding: 2rem 1.5rem;
   }
-  
+
   .register-title {
     font-size: 1.6rem;
   }
-  
+
   .register-benefits {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .benefit-item {
     justify-content: center;
   }
 }
+
 .error-message {
-  color: #f44336;
+  color: var(--color-danger);
   font-size: 0.85em;
   margin-top: 4px;
 }
 
 .input-error {
-  border: 1px solid #f44336;
+  border: 1px solid var(--color-danger);
 }

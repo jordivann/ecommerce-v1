@@ -12,7 +12,7 @@ const ProductCard = ({ product }) => {
     return new Intl.NumberFormat('es-AR', {
       style: 'currency',
       currency: 'ARS',
-      minimumFractionDigits: 0,
+      minimumFractionDigits: 0, 
       maximumFractionDigits: 0,
     }).format(price);
   };
@@ -55,7 +55,7 @@ const ProductCard = ({ product }) => {
         />
         
         {/* Badge de descuento si existe */}
-        {product.discount && (
+        {product.discount > 0  && (
           <div className="discount-badge">
             -{product.discount}%
           </div>

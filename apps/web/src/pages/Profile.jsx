@@ -134,44 +134,44 @@ export default function Profile() {
 
         <div className="field-group">
           <label>Teléfono</label>
-          <input type="text" name="phone" value={form.phone} onChange={handleChange} />
+          <input type="text" name="phone" value={form.phone} onChange={handleChange} className={validationErrors.phone ? 'input-error' : form.phone ? 'input-valid' : ''}/>
           {validationErrors.phone && <p className="error-msg">{validationErrors.phone}</p>}
         </div>
 
         <div className="field-group">
           <label>Documento</label>
-          <input type="text" name="document_number" value={form.document_number} onChange={handleChange} />
+          <input type="text" name="document_number" value={form.document_number} onChange={handleChange} className={validationErrors.phone ? 'input-error' : form.phone ? 'input-valid' : ''}/>
         </div>
 
         <div className="field-group">
           <label>Calle</label>
-          <input type="text" name="street" value={form.street} onChange={handleChange} />
+          <input type="text" name="street" value={form.street} onChange={handleChange} className={validationErrors.phone ? 'input-error' : form.phone ? 'input-valid' : ''}/>
         </div>
 
         <div className="field-group">
           <label>Número</label>
-          <input type="text" name="number" value={form.number} onChange={handleChange} />
+          <input type="text" name="number" value={form.number} onChange={handleChange} className={validationErrors.phone ? 'input-error' : form.phone ? 'input-valid' : ''} />
         </div>
 
         <div className="field-group">
           <label>Departamento</label>
-          <input type="text" name="apartment" value={form.apartment} onChange={handleChange} />
+          <input type="text" name="apartment" value={form.apartment} onChange={handleChange} className={validationErrors.phone ? 'input-error' : form.phone ? 'input-valid' : ''}/>
           {validationErrors.address && <p className="error-msg">{validationErrors.address}</p>}
         </div>
 
         <div className="field-group">
           <label>Ciudad</label>
-          <input type="text" name="city" value={form.city} onChange={handleChange} />
+          <input type="text" name="city" value={form.city} onChange={handleChange} className={validationErrors.phone ? 'input-error' : form.phone ? 'input-valid' : ''}/>
         </div>
 
         <div className="field-group">
           <label>Código Postal</label>
-          <input type="text" name="postal_code" value={form.postal_code} onChange={handleChange} />
+          <input type="text" name="postal_code" value={form.postal_code} onChange={handleChange} className={validationErrors.phone ? 'input-error' : form.phone ? 'input-valid' : ''}/>
         </div>
 
         <div className="field-group">
           <label>País</label>
-          <input type="text" name="country" value={form.country} onChange={handleChange} />
+          <input type="text" name="country" value={form.country} onChange={handleChange} className={validationErrors.phone ? 'input-error' : form.phone ? 'input-valid' : ''}/>
         </div>
 
         <button className="btn" type="submit">Guardar Cambios</button>

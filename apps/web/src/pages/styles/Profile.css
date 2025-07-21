@@ -2,12 +2,15 @@
   max-width: 600px;
   margin: 0 auto;
   padding: 2rem;
+  background: var(--color-light);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
 
 .profile-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1.25rem;
 }
 
 .field-group {
@@ -16,37 +19,66 @@
 }
 
 .field-group label {
-  font-weight: bold;
-  margin-bottom: 4px;
+  font-weight: 600;
+  color: var(--color-dark);
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
 }
 
 .field-group input {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 16px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border-light);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--color-bg-soft);
+  transition: border 0.2s, background 0.2s;
+}
+
+.field-group input:focus {
+  border-color: var(--color-info);
+  outline: none;
+  background: white;
+}
+
+.field-group input:disabled {
+  background: var(--color-bg-hover);
+  cursor: not-allowed;
+}
+
+.field-group input.input-error {
+  border-color: var(--color-danger);
+}
+
+.field-group input.input-valid {
+  border-color: var(--color-success);
 }
 
 .btn[type="submit"] {
-  padding: 10px 16px;
-  background: #2563eb;
+  padding: 0.75rem 1.25rem;
+  background: var(--color-info);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background 0.3s ease;
 }
 
 .btn[type="submit"]:hover {
-  background: #1e40af;
+  background: var(--color-info-hover);
 }
 
 .success-msg {
-  color: green;
-  margin-top: 12px;
+  color: var(--color-success);
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .error-msg {
-  color: red;
-  margin-top: 12px;
+  color: var(--color-danger);
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
