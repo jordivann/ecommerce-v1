@@ -177,3 +177,45 @@
   background: #dc2626;
 }
 
+.dashboard-container {
+  padding: 2rem;
+}
+
+.dashboard-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-tabs button {
+  background: #e5e7eb;
+  color: #111827;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.dashboard-tabs button:hover {
+  background: #d1d5db;
+}
+
+.dashboard-tabs button.active {
+  background: #6366f1;
+  color: white;
+}
+
+.dashboard-content {
+  margin-top: 1rem;
+}
+.product-search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}

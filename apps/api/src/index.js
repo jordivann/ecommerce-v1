@@ -10,6 +10,7 @@ import authRouter from './routes/auth.js';
 import adminRouter from './routes/admin.js';
 
 import wishlistRouter from './routes/wishlist.js';
+import wishlistAdminRouter from './routes/wishlistAdmin.js';
 
 
 const app = express();
@@ -29,6 +30,7 @@ app.use('/api/v1/dashboard', adminRouter);
 app.use('/api/v1/products', productsRouter);  
 app.use('/api/v1/categories', categoriesRouter);  
 app.use('/api/v1/wishlist', wishlistRouter);
+app.use('/api/v1/wishlistAdmin', wishlistAdminRouter);
 
 (async () => {
   try {

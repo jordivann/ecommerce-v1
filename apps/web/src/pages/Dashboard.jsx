@@ -15,6 +15,7 @@ import './styles/Dashboard.css';
 
 import UserTable from '../components/dashboard/UserTable';
 import ProductTable from '../components/dashboard/ProductTable';
+import WishlistAnalytics from '../components/dashboard/WishlistAnalytics';
 
 export default function Dashboard() {
   const { user, token } = useAuth();
@@ -23,6 +24,7 @@ export default function Dashboard() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [showModal, setShowModal] = useState(false);
+    const [activeTab, setActiveTab] = useState('usuarios');
 
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -48,12 +50,17 @@ export default function Dashboard() {
   const [editingProductId, setEditingProductId] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
 
+  const [searchTerm, setSearchTerm] = useState('');
+
+
   useEffect(() => {
     if (!token) return;
     getAdminUsers(token).then(setUsers);
     getAdminProducts(token).then(setProducts);
     getAdminCategories(token).then(setCategories);
   }, [token]);
+
+
 
   if (user?.role !== 'admin') {
     return <p>No autorizado</p>;
@@ -123,44 +130,118 @@ export default function Dashboard() {
     setEditingProductId(null);
     setEditingProduct(null);
   }
+  const filteredProducts = products.filter(product => {
+    const query = sanitizeInput(searchTerm);
+
+    return (
+      sanitizeInput(product.name || '').includes(query) ||
+      sanitizeInput(product.description || '').includes(query) ||
+      sanitizeInput(product.brand || '').includes(query) ||
+      sanitizeInput(product.type || '').includes(query) ||
+      sanitizeInput(product.unit || '').includes(query) ||
+      sanitizeInput(product.sku || '').includes(query) ||
+      sanitizeInput(product.category || '').includes(query) || // si es string
+      (Array.isArray(product.tags) && product.tags.some(tag =>
+        sanitizeInput(tag).includes(query)
+      )) ||
+      String(product.price).includes(query) ||
+      String(product.stock).includes(query)
+    );
+  });
+  const filteredUsers = users.filter(user => {
+    const query = sanitizeInput(searchTerm);
+
+    return (
+      sanitizeInput(user.name || '').includes(query) ||
+      sanitizeInput(user.email || '').includes(query) ||
+      sanitizeInput(user.phone || '').includes(query) ||
+      sanitizeInput(user.document_number || '').includes(query) ||
+      sanitizeInput(user.address || '').includes(query) ||
+      sanitizeInput(user.city || '').includes(query) ||
+      sanitizeInput(user.country || '').includes(query) ||
+      sanitizeInput(user.role || '').includes(query)
+    );
+  });
+
+  function sanitizeInput(input) {
+      return input
+        .toLowerCase()
+        .replace(/[^a-z0-9áéíóúñü\s]/gi, '') // solo letras, números y espacios
+        .trim();
+    }
+
+
 
   return (
-    <div className="dashboard">
-      <h1>Panel de Administración</h1>
+     <div className="dashboard-container">
+      <div className="dashboard-tabs">
+        <button
+          className={activeTab === 'usuarios' ? 'active' : ''}
+          onClick={() => setActiveTab('usuarios')}
+        >
+          Usuarios
+        </button>
+        <button
+          className={activeTab === 'productos' ? 'active' : ''}
+          onClick={() => setActiveTab('productos')}
+        >
+          Productos
+        </button>
+        <button
+          className={activeTab === 'wishlist' ? 'active' : ''}
+          onClick={() => setActiveTab('wishlist')}
+        >
+          Wishlist
+        </button>
+      </div>
 
-      <UserTable users={users} onRoleChange={handleRoleChange} />
 
-      <button onClick={() => {    console.log('Abrir modal');
-    setShowModal(true);}}>➕ Nuevo Producto</button>
 
-      <ProductTable
-        products={products}
-        categories={categories}
-        editingProductId={editingProductId}
-        editingProduct={editingProduct}
-        onEdit={handleEdit}
-        onCancelEdit={handleCancelEdit}
-        onChangeEdit={setEditingProduct}
-        onUpdateProduct={handleUpdateProduct}
-        onDeleteProduct={handleDeleteProduct}
-      />
-      
-      {editingProduct && (
-        <ProductEditModal
-          product={editingProduct}
-          onClose={handleCancelEdit}
-          onSave={handleUpdateProduct}
+      <div className="dashboard-content">
+        <input
+          type="text"
+          className="product-search-input"
+          placeholder="Buscar producto, categoría, descripción..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
-      )}
-      {console.log('showModal?', showModal)}
-      <ProductFormModal
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        onCreate={handleCreateProduct}
-        newProduct={newProduct}
-        setNewProduct={setNewProduct}
-        categories={categories}
-      />
+        {activeTab === 'usuarios' && <UserTable users={filteredUsers} />}
+
+        {activeTab === 'productos' && (
+          <>
+            <ProductTable
+              products={filteredProducts}
+              categories={categories}
+              editingProductId={editingProductId}
+              editingProduct={editingProduct}
+              onEdit={handleEdit}
+              onCancelEdit={handleCancelEdit}
+              onChangeEdit={setEditingProduct}
+              onUpdateProduct={handleUpdateProduct}
+              onDeleteProduct={handleDeleteProduct}
+            />
+
+            {editingProduct && (
+              <ProductEditModal
+                product={editingProduct}
+                onClose={handleCancelEdit}
+                onSave={handleUpdateProduct}
+              />
+            )}
+
+            <ProductFormModal
+              show={showModal}
+              onClose={() => setShowModal(false)}
+              onCreate={handleCreateProduct}
+              newProduct={newProduct}
+              setNewProduct={setNewProduct}
+              categories={categories}
+            />
+          </>
+        )}
+
+        {activeTab === 'wishlist' && <WishlistAnalytics />}
+      </div>
     </div>
   );
 }
