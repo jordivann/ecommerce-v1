@@ -1,0 +1,30 @@
+.theme-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.theme-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  background-color: var(--color-bg-soft);
+}
+
+.theme-item.activo {
+  border-color: var(--color-primary);
+  background-color: var(--color-bg-hover);
+}
+
+.badge-activo {
+  margin-left: 1rem;
+  background: var(--color-primary);
+  color: #fff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
