@@ -272,3 +272,40 @@ export async function getActiveTheme() {
 }
 
 
+// SETTINGS
+export async function getPublicSettings() {
+  try {
+    const res = await fetch(`${API_URL}/settings`, {
+      method: 'GET',
+    });
+
+    if (!res.ok) throw new Error('Error al obtener settings públicos');
+    return await res.json();
+  } catch (error) {
+    console.error('getPublicSettings error:', error);
+    throw error;
+  }
+}
+export async function updateSettings(data, token) {
+  try {
+    const res = await fetch(`${API_URL}/settings`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Error al actualizar configuración');
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error('updateSettings error:', error);
+    throw error;
+  }
+}
+

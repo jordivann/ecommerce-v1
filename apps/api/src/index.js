@@ -12,7 +12,7 @@ import adminRouter from './routes/admin.js';
 import wishlistRouter from './routes/wishlist.js';
 import wishlistAdminRouter from './routes/wishlistAdmin.js';
 import themeRouter from './routes/theme.js';
-
+import settingsRouter from './routes/settings.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -33,6 +33,7 @@ app.use('/api/v1/categories', categoriesRouter);
 app.use('/api/v1/wishlist', wishlistRouter);
 app.use('/api/v1/wishlistAdmin', wishlistAdminRouter);
 app.use('/api/v1/theme', themeRouter);
+app.use('/api/v1/settings', settingsRouter);
 
 (async () => {
   try {

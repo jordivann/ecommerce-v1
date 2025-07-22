@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 import Loader from './components/Loader';
 import ThemeLoader from './components/dashboard/ThemeLoader';
+import { SettingsProvider } from './context/settingsContext';
 export default function App() {
   const { user, loading } = useAuth();
 
@@ -17,35 +18,38 @@ export default function App() {
 
 
   return (
-    <ThemeLoader>
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          
-          <Route
-            path="/profile"
-            element={
-              user
-                ? <Profile />
-                : <Navigate to="/login" replace />
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              user?.role === 'admin'
-                ? <Dashboard />
-                : <Navigate to="/" replace />
-            }
-          />
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>    
-      {/* ...otras rutas */}
-    </Router>
-    </ThemeLoader>
+    
+    <SettingsProvider>
+      <ThemeLoader>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              
+              <Route
+                path="/profile"
+                element={
+                  user
+                    ? <Profile />
+                    : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/dashboard"
+                element={
+                  user?.role === 'admin'
+                    ? <Dashboard />
+                    : <Navigate to="/" replace />
+                }
+              />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>    
+          {/* ...otras rutas */}
+        </Router>
+      </ThemeLoader>
+    </SettingsProvider>
   );
 }
