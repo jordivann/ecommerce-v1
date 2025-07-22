@@ -81,6 +81,7 @@ router.get('/products', authRequired('admin'), async (_, res) => {
 router.post('/products', authRequired('admin'), async (req, res) => {
   try {
     let {
+
       name,
       description,
       price,
@@ -93,6 +94,11 @@ router.post('/products', authRequired('admin'), async (req, res) => {
       unit,
       visible = true,
       discount_expiration,
+      weight_grams,
+      dimensions,
+      organic,
+      senasa,
+      rendimiento
     } = req.body;
 
     if (!name || !original_price || isNaN(original_price)) {
@@ -120,6 +126,7 @@ router.post('/products', authRequired('admin'), async (req, res) => {
     if (stock === 0) {
       visible = false;
     }
+    console.log('Recibido en backend para crear producto:', req.body);
 
     const result = await pool.query(`
       INSERT INTO products (
@@ -319,7 +326,6 @@ router.get('/themes', authRequired('admin'), async (_, res) => {
     const result = await pool.query(`
       SELECT * FROM themes;
     `);
-    console.log(result)
     res.json(result.rows);
   } catch (err) {
     console.error('Error al obtener temas:', err);

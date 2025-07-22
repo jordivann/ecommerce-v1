@@ -133,7 +133,6 @@ export async function updateProduct(productId, data, token) {
   return result.product;
 }
 
-
 export async function createProduct(data, token) {
   const res = await fetch(`${API_URL}/dashboard/products`, {
     method: 'POST',
@@ -143,8 +142,12 @@ export async function createProduct(data, token) {
     },
     body: JSON.stringify(data)
   });
-  return res.json();
+
+  const result = await res.json();
+  if (!res.ok) throw new Error(result.error || 'Error al crear producto');
+  return result;
 }
+
 export async function getAdminCategories(token) {
   const res = await fetch(`${API_URL}/categories`, {
     headers: { Authorization: `Bearer ${token}` },
