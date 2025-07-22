@@ -106,6 +106,9 @@ export default function Home() {
   const totalPages = Math.ceil(filtered.length / perPage);
   const start = (currentPage - 1) * perPage;
   const pageItems = filtered.slice(start, start + perPage);
+  localStorage.getItem('token')  // o 'accessToken', 'jwt', etc.
+  sessionStorage.getItem('token')
+
 
   return (
     <>

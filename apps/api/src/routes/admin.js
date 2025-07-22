@@ -176,125 +176,84 @@ router.put('/products/:id', authRequired('admin'), async (req, res) => {
   } = req.body;
 
   try {
-    // Limpieza extra: si no hay descuento real, quitar fecha
-    if (
-      price !== undefined &&
-      original_price !== undefined &&
-      parseFloat(price) === parseFloat(original_price)
-    ) {
-      discount_expiration = null;
+    // Obtener producto actual
+    const { rows } = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Producto no encontrado' });
     }
+    const current = rows[0];
 
     const fields = [];
     const values = [];
     let paramIndex = 1;
 
+    const pushIfChanged = (key, newValue) => {
+      const oldValue = current[key];
+      const changed =
+        typeof newValue === 'number'
+          ? parseFloat(newValue) !== parseFloat(oldValue)
+          : newValue !== oldValue;
+
+      if (changed) {
+        fields.push(`${key} = $${paramIndex++}`);
+        values.push(newValue);
+      }
+    };
+
+    // Comparar y agregar solo si cambió
     if (price !== undefined) {
       price = parseFloat(price);
-      fields.push(`price = $${paramIndex++}`);
-      values.push(price);
+      pushIfChanged('price', price);
     }
     if (original_price !== undefined) {
       original_price = parseFloat(original_price);
-      fields.push(`original_price = $${paramIndex++}`);
-      values.push(original_price);
+      pushIfChanged('original_price', original_price);
     }
-    if (stock !== undefined) {
-      fields.push(`stock = $${paramIndex++}`);
-      values.push(stock);
-      if (stock === 0 && visible === undefined) {
-        visible = false;
-      }
-    }
-    if (category_id !== undefined) {
-      fields.push(`category_id = $${paramIndex++}`);
-      values.push(category_id);
-    }
-    if (image_url !== undefined) {
-      fields.push(`image_url = $${paramIndex++}`);
-      values.push(image_url);
-    }
+    if (stock !== undefined) pushIfChanged('stock', stock);
+    if (category_id !== undefined) pushIfChanged('category_id', category_id);
+    if (image_url !== undefined) pushIfChanged('image_url', image_url);
+    if (tags !== undefined) pushIfChanged('tags', tags);
+    if (unit !== undefined) pushIfChanged('unit', unit);
+    if (visible !== undefined) pushIfChanged('visible', visible);
+    if (weight_grams !== undefined) pushIfChanged('weight_grams', weight_grams);
+    if (dimensions !== undefined) pushIfChanged('dimensions', dimensions);
+    if (organic !== undefined) pushIfChanged('organic', organic);
+    if (senasa !== undefined) pushIfChanged('senasa', senasa);
+    if (rendimiento !== undefined) pushIfChanged('rendimiento', rendimiento);
+    if (name !== undefined) pushIfChanged('name', name.trim());
+    if (description !== undefined) pushIfChanged('description', description.trim());
+    if (brand !== undefined) pushIfChanged('brand', brand.trim());
 
-    if (tags !== undefined) {
-      fields.push(`tags = $${paramIndex++}`);
-      values.push(tags);
-    }
-    if (unit !== undefined) {
-      fields.push(`unit = $${paramIndex++}`);
-      values.push(unit);
-    }
-    if (visible !== undefined) {
-      fields.push(`visible = $${paramIndex++}`);
-      values.push(visible);
-    }
+    // Descuento inteligente
+    let discount = current.discount_percentage;
 
-    if (weight_grams !== undefined) {
-      fields.push(`weight_grams = $${paramIndex++}`);
-      values.push(weight_grams);
-    }
-    if (dimensions !== undefined) {
-      fields.push(`dimensions = $${paramIndex++}`);
-      values.push(dimensions);
-    }
-    if (organic !== undefined) {
-      fields.push(`organic = $${paramIndex++}`);
-      values.push(organic);
-    }
-    if (senasa !== undefined) {
-      fields.push(`senasa = $${paramIndex++}`);
-      values.push(senasa);
-    }
-    if (rendimiento !== undefined) {
-      fields.push(`rendimiento = $${paramIndex++}`);
-      values.push(rendimiento);
-    }
-    if (name !== undefined) {
-      fields.push(`name = $${paramIndex++}`);
-      values.push(typeof name === 'string' ? name.trim() : '');
-    }
-    if (description !== undefined) {
-      fields.push(`description = $${paramIndex++}`);
-      values.push(typeof description === 'string' ? description.trim() : '');
-    }
-    if (brand !== undefined) {
-      fields.push(`brand = $${paramIndex++}`);
-      values.push(typeof brand === 'string' ? brand.trim() : '');
-    }
-
-
-    // Cálculo de descuento inteligente
-   if (price !== undefined && original_price !== undefined) {
-      let discount = 0;
-
-      // Si se especificó una fecha y ya expiró → cancelar descuento
+    if (price !== undefined && original_price !== undefined) {
+      // Fecha expirada → reset
       if (discount_expiration && new Date(discount_expiration) < new Date()) {
         discount = 0;
-        price = original_price;
-
-        fields.push(`price = $${paramIndex++}`);
-        values.push(price);
-
-        fields.push(`discount_expiration = $${paramIndex++}`);
-        values.push(null); // limpiar fecha vencida
+        discount_expiration = null;
+        pushIfChanged('discount_expiration', null);
       }
-
-      // Si el precio es menor que el original → calcular descuento
-      else if (original_price > price) {
+      // Si hay descuento real
+      else if (price < original_price) {
         discount = Math.round(100 * (1 - price / original_price));
       }
-
-      // Si no hay descuento real → forzar limpieza de fecha
-      if (discount === 0 && !fields.includes('discount_expiration')) {
-        fields.push(`discount_expiration = $${paramIndex++}`);
-        values.push(null);
+      // Si no hay descuento real y no se pasó fecha → limpiar
+      else {
+        discount = 0;
+        if (discount_expiration !== null) {
+          pushIfChanged('discount_expiration', null);
+        }
       }
 
-      fields.push(`discount_percentage = $${paramIndex++}`);
-      values.push(discount);
+      // Solo agregar descuento si cambió
+      if (discount !== current.discount_percentage) {
+        pushIfChanged('discount_percentage', discount);
+      }
     }
 
     if (fields.length === 0) {
-      return res.status(400).json({ error: 'No se proporcionaron campos para actualizar' });
+      return res.status(200).json({ message: 'Producto sin cambios', product: current });
     }
 
     fields.push(`updated_at = NOW()`);
@@ -305,15 +264,14 @@ router.put('/products/:id', authRequired('admin'), async (req, res) => {
       values
     );
 
-    if (result.rowCount === 0)
-      return res.status(404).json({ error: 'Producto no encontrado' });
-
     res.json({ message: 'Producto actualizado', product: result.rows[0] });
+
   } catch (err) {
     console.error('Error al editar producto:', err.message, err.stack);
     res.status(500).json({ error: 'Error al editar producto' });
   }
 });
+
 
 
 // ==============================

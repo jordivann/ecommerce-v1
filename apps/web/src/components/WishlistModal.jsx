@@ -4,12 +4,20 @@ import './styles/WishlistModal.css'
 
 export default function WishlistModal({ open, onClose }) {
   const [wishlist, setWishlist] = useState([]);
-
   useEffect(() => {
+    let ignore = false;
+
     if (open) {
-      getWishlist().then(setWishlist);
+      getWishlist().then(data => {
+        if (!ignore) setWishlist(data);
+      });
     }
+
+    return () => {
+      ignore = true;
+    };
   }, [open]);
+
 
   const handleRemove = async (productId) => {
     await removeFromWishlist(productId);

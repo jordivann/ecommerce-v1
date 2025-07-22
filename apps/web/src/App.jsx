@@ -11,16 +11,25 @@ import NotFound from './pages/NotFound';
 import Loader from './components/Loader';
 import ThemeLoader from './components/dashboard/ThemeLoader';
 import { SettingsProvider } from './context/settingsContext';
+import { CartProvider } from './context/cartContext';
+import Cart from './pages/Cart';
 export default function App() {
   const { user, loading } = useAuth();
 
-  if (loading) return <Loader />;
 
 
   return (
     
     <SettingsProvider>
+      
+      {loading ? (
+        <Loader />
+      ) : (
       <ThemeLoader>
+        
+        <CartProvider>
+
+
         <Router>
           <Routes>
             <Route path="/" element={<Layout />}>
@@ -44,12 +53,21 @@ export default function App() {
                     : <Navigate to="/" replace />
                 }
               />
+              <Route
+                path="/cart"
+                element={
+                  user
+                    ? <Cart />
+                    : <Navigate to="/login" replace />
+                }
+              />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>    
           {/* ...otras rutas */}
         </Router>
-      </ThemeLoader>
+        </CartProvider>
+      </ThemeLoader>)}
     </SettingsProvider>
   );
 }

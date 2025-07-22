@@ -1,0 +1,129 @@
+/* src/components/styles/Cart.css */
+
+.cart {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fdfdfd;
+  border-radius: 8px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}
+
+.cart h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  text-align: center;
+}
+
+.cart-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding: 1rem 0;
+  gap: 1rem;
+}
+
+.cart-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.cart-info {
+  flex: 1;
+}
+
+.cart-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cart-btn {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.cart-btn.plus {
+  background-color: #e0f2f1;
+  color: #00796b;
+}
+
+.cart-btn.plus:hover {
+  background-color: #b2dfdb;
+}
+
+.cart-btn.remove {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.cart-btn.remove:hover {
+  background-color: #ffcdd2;
+}
+
+.cart-clear-btn {
+  margin-top: 2rem;
+  background-color: #f44336;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  transition: background 0.2s;
+}
+
+.cart-clear-btn:hover {
+  background-color: #d32f2f;
+}
+
+
+.cart-qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #f1f1f1;
+  padding: 0.25rem 0.5rem;
+  border-radius: 5px;
+}
+
+.cart-qty-controls button {
+  background: #e0e0e0;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background 0.2s;
+}
+
+.cart-qty-controls button:hover {
+  background-color: #ccc;
+}
+
+.cart-qty-controls span {
+  min-width: 24px;
+  text-align: center;
+  font-weight: bold;
+}
+.cart-error {
+  color: red;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  display: block;
+}
