@@ -1,24 +1,16 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import WishlistModal from './WishlistModal';
 import './styles/Navbar.css'
 import SearchBar from './SearchBar';
+import { useSettings } from '../context/settingsContext';
+import CartIcon from './CartIcon';
 
 export default function Navbar({ user, handleLogout, cartItemsCount = 0 , searchQuery, setSearchQuery }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showWishlist, setShowWishlist] = useState(false);
-  
-
-
-  const categories = [
-    { name: 'Electrónicos', href: '/categoria/electronicos' },
-    { name: 'Ropa', href: '/categoria/ropa' },
-    { name: 'Hogar', href: '/categoria/hogar' },
-    { name: 'Deportes', href: '/categoria/deportes' },
-    { name: 'Belleza', href: '/categoria/belleza' },
-    { name: 'Libros', href: '/categoria/libros' }
-  ];
+  const { settings } = useSettings();
 
 
 
@@ -29,7 +21,7 @@ export default function Navbar({ user, handleLogout, cartItemsCount = 0 , search
         <div className="container">
           <div className="top-bar">
             <div className="top-left">
-              <span>Envío gratis en compras superiores a $50.000</span>
+              <em><span>{settings.slogan}</span><span className='text-claro'> - {settings.info_extra || 'Envío gratis en compras superiores a $50.000' } </span></em>
             </div>
             <div className="top-right">
               <Link to="/ayuda">Ayuda</Link>
@@ -52,7 +44,8 @@ export default function Navbar({ user, handleLogout, cartItemsCount = 0 , search
                 <circle cx="20" cy="20" r="18" fill="currentColor"/>
                 <path d="M12 20l6 6 12-12" stroke="white" strokeWidth="2" fill="none"/>
               </svg>
-              <span>TiendaPro</span>
+              <span>{settings.nombre_logo || 'TiendaPro'}</span>
+
             </Link>
 
             <SearchBar value={searchQuery} onSearch={setSearchQuery} />
@@ -72,17 +65,7 @@ export default function Navbar({ user, handleLogout, cartItemsCount = 0 , search
                 )}
 
               {/* Cart */}
-              <Link to="/carrito" className="nav-action cart-action">
-                <div className="cart-icon-container">
-                  <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m1.6 8L5 3H3m4 10v6a1 1 0 001 1h10a1 1 0 001-1v-6M9 19a1 1 0 102 0 1 1 0 00-2 0zm10 0a1 1 0 102 0 1 1 0 00-2 0z" />
-                  </svg>
-                  {cartItemsCount > 0 && (
-                    <span className="cart-badge">{cartItemsCount}</span>
-                  )}
-                </div>
-                <span className="nav-label">Carrito</span>
-              </Link>
+              <CartIcon />
 
               {/* User menu */}
               <div className="user-menu">

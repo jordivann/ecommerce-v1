@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import FavouriteButton from './FavouriteButton'; 
+import FavouriteButton from './FavouriteButton';
+import { useCart } from '../context/cartContext'; 
 
 
 const ProductCard = ({ product }) => {
+  const { addToCart } = useCart();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
+    const isDiscountActive = product.discount > 0 &&
+    (!product.discountExpiration || new Date(product.discountExpiration) > new Date());
 
 
   const formatPrice = (price) => {
@@ -17,22 +21,7 @@ const ProductCard = ({ product }) => {
     }).format(price);
   };
 
-  const handleAddToCart = (e) => {
-    e.preventDefault();
-    // Aquí irá la lógica del carrito
-    console.log('Producto agregado:', product);
-    
-    // Efecto visual opcional
-    const button = e.target;
-    const originalText = button.textContent;
-    button.textContent = '¡Agregado!';
-    button.style.background = '#10b981';
-    
-    setTimeout(() => {
-      button.textContent = originalText;
-      button.style.background = '';
-    }, 1500);
-  };
+
   
   return (
     <div 
@@ -55,10 +44,9 @@ const ProductCard = ({ product }) => {
         />
         
         {/* Badge de descuento si existe */}
-        {product.discount > 0  && (
-          <div className="discount-badge">
-            -{product.discount}%
-          </div>
+        
+        {isDiscountActive && (
+          <span className="discount-badge-admin">-{product.discount}%</span>
         )}
         
         {/* Badge de stock bajo */}
@@ -90,7 +78,7 @@ const ProductCard = ({ product }) => {
         )}
         
         <div className="price-section">
-          {product.originalPrice && product.originalPrice > product.price ? (
+          {isDiscountActive && product.originalPrice && product.originalPrice > product.price ? (
             <>
               <span className="original-price">${product.originalPrice}</span>
               <p className="current-price">{formatPrice(product.price)}</p>
@@ -99,7 +87,8 @@ const ProductCard = ({ product }) => {
             <p className="current-price noDiscount">{formatPrice(product.price)}</p>
           )}
         </div>
-
+          <button className="add-to-cart-btn" onClick={() => addToCart(product.id)}>Agregar</button>
+{/* 
 
         <button 
           className="add-to-cart-btn"
@@ -107,7 +96,7 @@ const ProductCard = ({ product }) => {
           disabled={product.stock === 0}
         >
           {product.stock === 0 ? 'Sin stock' : 'Agregar al carrito'}
-        </button>
+        </button> */}
       </div>
     </div>
   );

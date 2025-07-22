@@ -133,7 +133,6 @@ export async function updateProduct(productId, data, token) {
   return result.product;
 }
 
-
 export async function createProduct(data, token) {
   const res = await fetch(`${API_URL}/dashboard/products`, {
     method: 'POST',
@@ -143,8 +142,12 @@ export async function createProduct(data, token) {
     },
     body: JSON.stringify(data)
   });
-  return res.json();
+
+  const result = await res.json();
+  if (!res.ok) throw new Error(result.error || 'Error al crear producto');
+  return result;
 }
+
 export async function getAdminCategories(token) {
   const res = await fetch(`${API_URL}/categories`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -269,3 +272,101 @@ export async function getActiveTheme() {
 }
 
 
+// SETTINGS
+export async function getPublicSettings() {
+  try {
+    const res = await fetch(`${API_URL}/settings`, {
+      method: 'GET',
+    });
+
+    if (!res.ok) throw new Error('Error al obtener settings públicos');
+    return await res.json();
+  } catch (error) {
+    console.error('getPublicSettings error:', error);
+    throw error;
+  }
+}
+export async function updateSettings(data, token) {
+  try {
+    const res = await fetch(`${API_URL}/settings`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Error al actualizar configuración');
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error('updateSettings error:', error);
+    throw error;
+  }
+}
+export async function getCart() {
+  const token = localStorage.getItem('token');
+  const res = await fetch(`${API_URL}/cart`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!res.ok) throw new Error('Error al obtener carrito');
+  return res.json();
+}
+
+export async function addToCart(product_id, quantity = 1) {
+  const token = localStorage.getItem('token');
+  const res = await fetch(`${API_URL}/cart`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ product_id, quantity }),
+  });
+  if (!res.ok) throw new Error('Error al agregar al carrito');
+  return res.json();
+}
+export async function updateCart(product_id, quantity) {
+  const token = localStorage.getItem('token');
+  const res = await fetch(`${API_URL}/cart`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ product_id, quantity }),
+  });
+
+  if (!res.ok) throw new Error('Error al actualizar carrito');
+  return res.json();
+}
+export async function removeFromCart(product_id) {
+  const token = localStorage.getItem('token');
+  const res = await fetch(`${API_URL}/cart/${product_id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) throw new Error('Error al eliminar del carrito');
+  return res.json();
+}
+export async function clearCart() {
+  const token = localStorage.getItem('token');
+  const res = await fetch(`${API_URL}/cart`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) throw new Error('Error al vaciar el carrito');
+  return res.json();
+}

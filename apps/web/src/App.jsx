@@ -10,42 +10,64 @@ import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 import Loader from './components/Loader';
 import ThemeLoader from './components/dashboard/ThemeLoader';
+import { SettingsProvider } from './context/settingsContext';
+import { CartProvider } from './context/cartContext';
+import Cart from './pages/Cart';
 export default function App() {
   const { user, loading } = useAuth();
 
-  if (loading) return <Loader />;
 
 
   return (
-    <ThemeLoader>
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          
-          <Route
-            path="/profile"
-            element={
-              user
-                ? <Profile />
-                : <Navigate to="/login" replace />
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              user?.role === 'admin'
-                ? <Dashboard />
-                : <Navigate to="/" replace />
-            }
-          />
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>    
-      {/* ...otras rutas */}
-    </Router>
-    </ThemeLoader>
+    
+    <SettingsProvider>
+      
+      {loading ? (
+        <Loader />
+      ) : (
+      <ThemeLoader>
+        
+        <CartProvider>
+
+
+        <Router>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              
+              <Route
+                path="/profile"
+                element={
+                  user
+                    ? <Profile />
+                    : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/dashboard"
+                element={
+                  user?.role === 'admin'
+                    ? <Dashboard />
+                    : <Navigate to="/" replace />
+                }
+              />
+              <Route
+                path="/cart"
+                element={
+                  user
+                    ? <Cart />
+                    : <Navigate to="/login" replace />
+                }
+              />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>    
+          {/* ...otras rutas */}
+        </Router>
+        </CartProvider>
+      </ThemeLoader>)}
+    </SettingsProvider>
   );
 }

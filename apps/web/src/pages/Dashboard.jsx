@@ -17,6 +17,7 @@ import UserTable from '../components/dashboard/UserTable';
 import ProductTable from '../components/dashboard/ProductTable';
 import WishlistAnalytics from '../components/dashboard/WishlistAnalytics';
 import Themes from '../components/dashboard/Themes'
+import SettingPage from '../components/dashboard/SettingPage'
 
 export default function Dashboard() {
   const { user, token } = useAuth();
@@ -26,27 +27,6 @@ export default function Dashboard() {
   const [categories, setCategories] = useState([]);
   const [showModal, setShowModal] = useState(false);
     const [activeTab, setActiveTab] = useState('usuarios');
-
-  const [newProduct, setNewProduct] = useState({
-    name: '',
-    description: '',
-    image_url: '',
-    original_price: '',
-    price: '',
-    stock: '',
-    category_id: '',
-    brand: '',
-    tags: '',
-    unit: '',
-    visible: true,
-    discount_expiration: '',
-    weight_grams: '',
-    dimensions: '',
-    organic: false,
-    senasa: false,
-    rendimiento: ''
-  });
-
 
   const [editingProductId, setEditingProductId] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -87,39 +67,6 @@ export default function Dashboard() {
     setEditingProduct(null);
   }
 
-  async function handleCreateProduct() {
-    const productToSend = {
-      ...newProduct,
-      tags: newProduct.tags
-        ? newProduct.tags.split(',').map(tag => tag.trim()).filter(Boolean)
-        : []
-    };
-
-    const created = await createProduct(productToSend, token);
-    if (created.product) {
-      setProducts(prev => [...prev, created.product]);
-      setShowModal(false);
-      setNewProduct({
-        name: '',
-        description: '',
-        image_url: '',
-        original_price: '',
-        price: '',
-        stock: '',
-        category_id: '',
-        brand: '',
-        tags: '',
-        unit: '',
-        visible: true,
-        discount_expiration: '',
-        weight_grams: '',
-        dimensions: '',
-        organic: false,
-        senasa: false,
-        rendimiento: ''
-      });
-    }
-  }
 
 
   function handleEdit(id, product) {
@@ -200,6 +147,12 @@ export default function Dashboard() {
         >
           Themes
         </button>
+        <button
+          className={activeTab === 'settings' ? 'active' : ''}
+          onClick={() => setActiveTab('settings')}
+        >
+          Settings
+        </button>
       </div>
 
 
@@ -216,6 +169,8 @@ export default function Dashboard() {
 
         {activeTab === 'productos' && (
           <>
+            <button onClick={() => {    console.log('Abrir modal');
+                    setShowModal(true);}}>➕ Nuevo Producto</button>
             <ProductTable
               products={filteredProducts}
               categories={categories}
@@ -235,21 +190,25 @@ export default function Dashboard() {
                 onSave={handleUpdateProduct}
               />
             )}
-
             <ProductFormModal
               show={showModal}
               onClose={() => setShowModal(false)}
-              onCreate={handleCreateProduct}
-              newProduct={newProduct}
-              setNewProduct={setNewProduct}
+              token={token}
               categories={categories}
+              onProductCreated={(newProduct) => {
+                setProducts(prev => [...prev, newProduct]);
+              }}
             />
+
+
           </>
         )}
 
         {activeTab === 'wishlist' && <WishlistAnalytics />}
         
         {activeTab === 'themes' && <Themes />}
+        
+        {activeTab === 'settings' && <SettingPage />}
       </div>
     </div>
   );

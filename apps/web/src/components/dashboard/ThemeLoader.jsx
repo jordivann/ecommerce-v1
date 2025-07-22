@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getActiveTheme } from '../../lib/apiClient';
+import Loader from '../Loader';
 
 function applyThemeVariables(variables) {
   const root = document.documentElement;
@@ -18,7 +19,7 @@ export default function ThemeLoader({ children }) {
       .finally(() => setReady(true));
   }, []);
 
-  if (!ready) return <div className="theme-loader">Cargando tema...</div>;
+  if (!ready) return <Loader />;
 
   return <>{children}</>;
 }

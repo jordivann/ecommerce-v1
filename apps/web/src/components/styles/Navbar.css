@@ -74,7 +74,9 @@
   justify-content: space-between;
   gap: 16px;
 }
-
+.text-claro{
+  color:var(--color-light)
+}
 /* Logo */
 .navbar-logo {
   display: flex;
@@ -337,4 +339,3 @@
     display: block;
   }
 }
- 
