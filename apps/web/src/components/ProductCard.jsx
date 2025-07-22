@@ -37,7 +37,7 @@ const ProductCard = ({ product }) => {
           </div>
         )}
         <img 
-          src={product.imageUrl || 'https://unsplash.com/es/fotos/un-par-de-tazas-blancas-encima-de-una-mesa-kGYnSshB50I'} 
+          src={product.imageUrl} 
           alt={product.name}
           onLoad={() => setImageLoaded(true)}
           style={{ display: imageLoaded ? 'block' : 'none' }}
