@@ -63,9 +63,9 @@ export default function Navbar({ user, handleLogout, cartItemsCount = 0 , search
                     <WishlistModal open={showWishlist} onClose={() => setShowWishlist(false)} />
                   </>
                 )}
-
+              {user ? (
+              <CartIcon />):(<></>)}
               {/* Cart */}
-              <CartIcon />
 
               {/* User menu */}
               <div className="user-menu">
