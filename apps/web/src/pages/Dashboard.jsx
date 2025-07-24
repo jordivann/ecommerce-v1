@@ -165,7 +165,7 @@ export default function Dashboard() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        {activeTab === 'usuarios' && <UserTable users={filteredUsers} />}
+        {activeTab === 'usuarios' && <UserTable users={filteredUsers} onRoleChange={handleRoleChange}/>}
 
         {activeTab === 'productos' && (
           <>
