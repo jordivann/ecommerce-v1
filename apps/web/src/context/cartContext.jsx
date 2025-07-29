@@ -6,6 +6,7 @@ import {
   removeFromCart,
   clearCart
 } from '../lib/apiClient';
+import CartSidebar from '../components/CartSider';
 const DEBOUNCE_DELAY = 600; // en ms
 const CartContext = createContext();
 
@@ -13,6 +14,8 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState({});
+  const [showCart, setShowCart] = useState(false);
+
 
   // Cargar carrito al montar
   useEffect(() => {
@@ -31,11 +34,12 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   // Acciones
-    const handleAdd = async (product_id, quantity = 1) => {
+  const handleAdd = async (product_id, quantity = 1) => {
     // Asegurate de que product_id sea un string o number, no un objeto
     await addToCart(product_id, quantity);
     const data = await getCart();
     setCart(data);
+    setShowCart(true);
     };
     
     const updateTimers = useRef({});
@@ -83,6 +87,7 @@ export const CartProvider = ({ children }) => {
       errors
     }}>
       {children}
+      <CartSidebar isOpen={showCart} onClose={() => setShowCart(false)} />
     </CartContext.Provider>
   );
 };
