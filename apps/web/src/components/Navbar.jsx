@@ -1,0 +1,149 @@
+import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import WishlistModal from './WishlistModal';
+import './styles/Navbar.css'
+import SearchBar from './SearchBar';
+import { useSettings } from '../context/settingsContext';
+import CartIcon from './CartIcon';
+
+export default function Navbar({ user, handleLogout, cartItemsCount = 0 , searchQuery, setSearchQuery }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [showWishlist, setShowWishlist] = useState(false);
+  const { settings } = useSettings();
+
+
+
+  return (
+    <nav className="navbar">
+      {/* Top bar */}
+      <div className="navbar-top">
+        <div className="container">
+          <div className="top-bar">
+            <div className="top-left">
+              <em><span>{settings.slogan}</span><span className='text-claro'> - {settings.info_extra || 'Envío gratis en compras superiores a $50.000' } </span></em>
+            </div>
+            <div className="top-right">
+              <Link to="/ayuda">Ayuda</Link>
+              <Link to="/seguimiento">Seguir pedido</Link>
+              {user?.role === 'admin' && (
+                <Link to="/dashboard">Dashboard</Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main navbar */}
+      <div className="navbar-main">
+        <div className="container">
+          <div className="navbar-content">
+            {/* Logo */}
+            <Link to="/" className="navbar-logo">
+              <svg viewBox="0 0 40 40" className="logo-icon">
+                <circle cx="20" cy="20" r="18" fill="currentColor"/>
+                <path d="M12 20l6 6 12-12" stroke="white" strokeWidth="2" fill="none"/>
+              </svg>
+              <span>{settings.nombre_logo || 'TiendaPro'}</span>
+
+            </Link>
+
+            <SearchBar value={searchQuery} onSearch={setSearchQuery} />
+            {/* Right side actions */}
+            <div className="navbar-actions">
+              {/* Wishlist */}
+              {user && (
+                  <>
+                    <button onClick={() => setShowWishlist(true)} className="nav-action">
+                      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                      <span className="nav-label">Favoritos</span>
+                    </button>
+                    <WishlistModal open={showWishlist} onClose={() => setShowWishlist(false)} />
+                  </>
+                )}
+              {user ? (
+              <CartIcon />):(<></>)}
+              {/* Cart */}
+
+              {/* User menu */}
+              <div className="user-menu">
+                {user ? (
+                  <div className="user-dropdown">
+                    <button className="user-button">
+                      <div className="user-avatar">
+                        {user.name?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                      <span className="nav-label">{user.name || 'Usuario'}</span>
+                      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 12l-4-4h8l-4 4z"/>
+                      </svg>
+                    </button>
+                    <div className="dropdown-menu">
+                      <Link to="/profile" className="dropdown-item">Mi Perfil</Link>
+                      <Link to="/pedidos" className="dropdown-item">Mis Pedidos</Link>
+                      <Link to="/config" className="dropdown-item">Configuración</Link>
+                      <div className="dropdown-divider"></div>
+                      <button onClick={handleLogout} className="dropdown-item logout">
+                        Cerrar Sesión
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="auth-buttons">
+                    <Link to="/login" className="btn-secondary">Iniciar Sesión</Link>
+                    <Link to="/register" className="btn-primary">Registrarse</Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile menu button */}
+              <button 
+                className="mobile-menu-button"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              >
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      {/* Mobile menu */}
+      {isMenuOpen && (
+        <div className="mobile-menu">
+          <div className="mobile-menu-content">
+
+            <div className="mobile-actions">
+              {user && (
+                <button onClick={() => { setShowWishlist(true); setIsMenuOpen(false); }}>
+                  Favoritos
+                </button>
+              )}
+
+              <Link to="/carrito" onClick={() => setIsMenuOpen(false)}>Carrito</Link>
+              {user ? (
+                <>
+                  <Link to="/perfil" onClick={() => setIsMenuOpen(false)}>Mi Perfil</Link>
+                  <Link to="/pedidos" onClick={() => setIsMenuOpen(false)}>Mis Pedidos</Link>
+                  <button onClick={() => { handleLogout(); setIsMenuOpen(false); }}>
+                    Cerrar Sesión
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" onClick={() => setIsMenuOpen(false)}>Iniciar Sesión</Link>
+                  <Link to="/register" onClick={() => setIsMenuOpen(false)}>Registrarse</Link>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+}
