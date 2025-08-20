@@ -1,174 +1,335 @@
-import { useEffect, useState } from 'react';
+// apps/web/src/pages/Home.jsx
+import { useEffect, useMemo, useState } from 'react';
 import { getPublicProducts, getPublicCategories } from '../lib/apiClient';
-import ProductCard from '../components/ProductCard';
-import Pagination from '../components/Pagination';
-import Sidebar from '../components/Sidebar';
-import SearchBar from '../components/SearchBar';
-import Logo from '../components/Logo';
-import Loader from '../components/Loader';
+import { useCart } from '../context/cartContext';
 import './styles/Home.css';
-import { useOutletContext } from 'react-router-dom';
+
+// Normaliza cualquier valor a string en minúsculas
+const toText = (v) => {
+  if (Array.isArray(v)) return v.join(' ').toLowerCase();
+  if (v === null || v === undefined) return '';
+  return String(v).toLowerCase();
+};
+
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [onlyInStock, setOnlyInStock] = useState(false);
-  const [onlyDiscounts, setOnlyDiscounts] = useState(false);
-  const [selectedVisibility, setSelectedVisibility] = useState('');
-  const [selectedBrand, setSelectedBrand] = useState('');
-  const [onlyOrganic, setOnlyOrganic] = useState(false);
-  const [onlySenasa, setOnlySenasa] = useState(false);
-  
-  const [rawMinPrice, setRawMinPrice] = useState('');
-  const [rawMaxPrice, setRawMaxPrice] = useState('');
+  // Filtros / UI
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('Todas');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
-  const [isBlocked, setIsBlocked] = useState(false);
-  const [filterChangeCount, setFilterChangeCount] = useState(0);
-  const { searchQuery, setSearchQuery } = useOutletContext();
-  const perPage = 8;
+  const [onlyStock, setOnlyStock] = useState(false);
+  const [onlyDiscount, setOnlyDiscount] = useState(false);
+  const [visibility, setVisibility] = useState('Todos');
 
+  // Paginado
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 6; // 👈 6 cards por página
+
+  // Carrito
+  const { addToCart } = useCart();
+
+  // Carga inicial
   useEffect(() => {
-    async function loadData() {
+    let isMounted = true;
+    (async () => {
       try {
         const [prods, cats] = await Promise.all([
           getPublicProducts(),
-          getPublicCategories()
+          getPublicCategories(),
         ]);
-        setProducts(prods);
-        setCategories(cats);
+        if (!isMounted) return;
+        setProducts(prods || []);
+        setCategories([{ id: 0, name: 'Todas' }, ...(cats || [])]);
       } catch (err) {
-        console.error('Error cargando productos/categorías:', err);
-        setError(err);
+        console.error('Error cargando datos:', err);
+        if (isMounted) setError('No se pudieron cargar los datos.');
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
-    }
-    loadData();
+    })();
+    return () => { isMounted = false; };
   }, []);
 
-  useEffect(() => {
-    if (isBlocked) return;
-    setFilterChangeCount(prev => prev + 1);
-  }, [rawMinPrice, rawMaxPrice]);
+  // Filtrado seguro (coincidencia de texto + otros filtros)
+  const filtered = useMemo(() => {
+    let list = products;
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setMinPrice(rawMinPrice);
-      setMaxPrice(rawMaxPrice);
-    }, 1000);
-
-    return () => clearTimeout(timeout);
-  }, [rawMinPrice, rawMaxPrice]);
-
-  useEffect(() => {
-    if (filterChangeCount > 40) {
-      setIsBlocked(true);
-      setTimeout(() => {
-        setIsBlocked(false);
-        setFilterChangeCount(0);
-      }, 10000);
+    const q = toText(searchQuery).trim();
+    if (q) {
+      list = list.filter((p) => {
+        const name = toText(p.name);
+        const brand = toText(p.brand);
+        const tags = toText(p.tags);
+        return name.includes(q) || brand.includes(q) || tags.includes(q);
+      });
     }
-  }, [filterChangeCount]);
 
-  if (loading) return <Loader />;
-  if (error) return <p style={{ padding: 20 }}>Error: {error.message}</p>;
+    if (selectedCategory && selectedCategory !== 'Todas') {
+      list = list.filter((p) => p.category === selectedCategory);
+    }
 
-  const filtered = products.filter(p => {
-    const matchesName = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory
-      ? p.category?.toLowerCase() === selectedCategory.toLowerCase()
-      : true;
-    const matchesStock = onlyInStock ? p.stock > 0 : true;
-    const now = new Date();
-    const matchesDiscount = onlyDiscounts
-      ? p.discount_percentage > 0 && (!p.discount_expiration || new Date(p.discount_expiration) > now)
-      : true;
+    const min = parseFloat(minPrice);
+    const max = parseFloat(maxPrice);
+    if (!Number.isNaN(min)) list = list.filter((p) => Number(p.price) >= min);
+    if (!Number.isNaN(max)) list = list.filter((p) => Number(p.price) <= max);
 
-    const matchesVisibility = selectedVisibility === 'visible' ? p.visible === true
-      : selectedVisibility === 'hidden' ? p.visible === false
-      : true;
-    const matchesBrand = selectedBrand ? p.brand === selectedBrand : true;
-    const matchesOrganic = onlyOrganic ? p.organic === true : true;
-    const matchesSenasa = onlySenasa ? p.senasa === true : true;
-    const matchesMinPrice = minPrice ? p.price >= parseFloat(minPrice) : true;
-    const matchesMaxPrice = maxPrice ? p.price <= parseFloat(maxPrice) : true;
+    if (onlyStock) list = list.filter((p) => Number(p.stock) > 0);
+    if (onlyDiscount) list = list.filter((p) => Number(p.discount) > 0);
 
-    return matchesName && matchesCategory && matchesStock && matchesDiscount &&
-      matchesVisibility && matchesBrand && matchesOrganic && matchesSenasa &&
-      matchesMinPrice && matchesMaxPrice;
-  });
+    if (visibility === 'Visibles') list = list.filter((p) => p.visible !== false);
+    if (visibility === 'Ocultos') list = list.filter((p) => p.visible === false);
 
-  const totalPages = Math.ceil(filtered.length / perPage);
-  const start = (currentPage - 1) * perPage;
-  const pageItems = filtered.slice(start, start + perPage);
-  localStorage.getItem('token')  // o 'accessToken', 'jwt', etc.
-  sessionStorage.getItem('token')
+    return list;
+  }, [products, searchQuery, selectedCategory, minPrice, maxPrice, onlyStock, onlyDiscount, visibility]);
 
+  // ---- Paginación robusta (chunking + rebalanceo si última página tenía 1 ítem) ----
+  const pages = useMemo(() => {
+    const chunks = [];
+    for (let i = 0; i < filtered.length; i += perPage) {
+      chunks.push(filtered.slice(i, i + perPage));
+    }
+    if (chunks.length > 1 && chunks[chunks.length - 1].length === 1) {
+      const prev = chunks[chunks.length - 2];
+      const last = chunks[chunks.length - 1];
+      const moved = prev.pop();
+      if (moved) last.unshift(moved);
+    }
+    return chunks;
+  }, [filtered, perPage]);
+
+  const pageCount = Math.max(1, pages.length || 1);
+  const page = Math.min(currentPage, pageCount);
+  const pageSlice = pages[page - 1] || [];
+
+  // Reset de página cuando cambian filtros
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, minPrice, maxPrice, onlyStock, onlyDiscount, visibility]);
+
+  const handleAddToCart = (p) => {
+    if (Number(p.stock) <= 0) return;
+    if (typeof addToCart === 'function') addToCart(p.id, 1, p);
+  };
+
+  const onSubmitSearch = (e) => {
+    e.preventDefault(); // no navegamos ni usamos ?q
+    setCurrentPage(1);
+  };
+
+  if (error) return <main className="container page"><p>{error}</p></main>;
 
   return (
-    <>
-      <header className="topbar">
-        <Logo />
-        {/* <SearchBar value={searchQuery} onSearch={setSearchQuery} /> */}
-      </header>
+    <main className="container page">
+      {/* ÚNICA barra de búsqueda arriba de la grilla */}
+      <div className="content-header">
+        <h1>Todos los productos</h1>
 
-      <div className="container layout">
-        <aside className="sidebar">
-          <Sidebar
-            categories={categories}
-            searchQuery={searchQuery}
-            onSearch={setSearchQuery}
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-            minPrice={rawMinPrice}
-            maxPrice={rawMaxPrice}
-            onMinPriceChange={(value) => !isBlocked && setRawMinPrice(value)}
-            onMaxPriceChange={(value) => !isBlocked && setRawMaxPrice(value)}
-            onlyInStock={onlyInStock}
-            onToggleInStock={() => setOnlyInStock(prev => !prev)}
-            onlyDiscounts={onlyDiscounts}
-            onToggleWithDiscounts={() => setOnlyDiscounts(prev => !prev)}
-            selectedVisibility={selectedVisibility}
-            onVisibilityChange={setSelectedVisibility}
-            brands={[...new Set(products.map(p => p.brand).filter(Boolean))]}
-            selectedBrand={selectedBrand}
-            onBrandSelect={setSelectedBrand}
-            onlyOrganic={onlyOrganic}
-            onToggleOrganic={() => setOnlyOrganic(prev => !prev)}
-            onlySenasa={onlySenasa}
-            onToggleSenasa={() => setOnlySenasa(prev => !prev)}
-            isBlocked={isBlocked}
+        <form className="searchbar" onSubmit={onSubmitSearch} role="search" aria-label="Buscar productos">
+          <input
+            className="searchbar-input"
+            placeholder="Buscar productos..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
+          {/* Botón estilo FANCY */}
+          <button type="submit" className="fancy">
+            <span className="top-key"></span>
+            <span className="text">Buscar</span>
+            <span className="bottom-key-1"></span>
+            <span className="bottom-key-2"></span>
+          </button>
+        </form>
+      </div>
+
+      <div className="layout">
+        {/* FILTROS (acordeón) */}
+        <aside className="sidebar">
+          <h3 style={{ marginTop: 0 }}>Filtros</h3>
+
+          <details className="acc" open>
+            <summary>Categorías</summary>
+            <ul className="category-list">
+              {categories.map((cat) => {
+                const name = cat.name ?? 'Todas';
+                const active = selectedCategory === name;
+                return (
+                  <li
+                    key={cat.id ?? name}
+                    className={active ? 'active' : ''}
+                    onClick={() => setSelectedCategory(name)}
+                  >
+                    {name}
+                  </li>
+                );
+              })}
+            </ul>
+          </details>
+
+          <details className="acc">
+            <summary>Rango de precio</summary>
+            <div className="price-range">
+              <input
+                type="number"
+                placeholder="Mín"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+              />
+              <input
+                type="number"
+                placeholder="Máx"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+              />
+            </div>
+          </details>
+
+          <details className="acc">
+            <summary>Disponibilidad</summary>
+            <div className="filter-block" style={{ marginBottom: 0 }}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={onlyStock}
+                  onChange={(e) => setOnlyStock(e.target.checked)}
+                />{' '}
+                Solo con stock
+              </label>
+            </div>
+            <div className="filter-block" style={{ marginBottom: 0 }}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={onlyDiscount}
+                  onChange={(e) => setOnlyDiscount(e.target.checked)}
+                />{' '}
+                Solo con descuentos
+              </label>
+            </div>
+          </details>
+
+          <details className="acc">
+            <summary>Visibilidad</summary>
+            <select value={visibility} onChange={(e) => setVisibility(e.target.value)}>
+              <option>Todos</option>
+              <option>Visibles</option>
+              <option>Ocultos</option>
+            </select>
+          </details>
         </aside>
 
-        <main>
-          <h2 style={{ marginBottom: '1rem' }}>
-            {selectedCategory ? `Categoría: ${selectedCategory}` : 'Todos los productos'}
-          </h2>
-          <div className="product-grid">
-            {pageItems.length === 0 ? (
-              <p style={{ padding: '1rem', fontSize: '1.1rem', color: '#777' }}>
-                No se encontraron productos que coincidan con tu búsqueda.
-              </p>
-            ) : (
-              pageItems.map(p => (
-                <ProductCard key={p.id} product={p} />
-              ))
-            )}
-          </div>
+        {/* GRID */}
+        <section>
+          {loading ? (
+            <div className="product-grid">
+              {Array.from({ length: perPage }).map((_, i) => (
+                <div key={i} className="product-card skeleton" />
+              ))}
+            </div>
+          ) : (
+            <>
+              <div className="product-grid">
+                {pageSlice.map((p) => (
+                  <article key={p.id} className="product-card">
+                    <div className="product-image-container">
+                      {Number(p.discount) > 0 && (
+                        <span className="discount-badge">-{p.discount}%</span>
+                      )}
+                      <img src={p.imageUrl} alt={p.name} loading="lazy" />
+                      {Number(p.stock) > 0 ? (
+                        Number(p.stock) <= 3 && (
+                          <span className="stock-badge">¡Últimas {p.stock}!</span>
+                        )
+                      ) : (
+                        <span className="stock-badge" style={{ background: 'var(--color-muted)' }}>
+                          Sin stock
+                        </span>
+                      )}
+                    </div>
 
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        </main>
+                    <div className="info">
+                      <h2 title={p.name}>{p.name}</h2>
+
+                      <div className="product-rating">
+                        <div className="stars">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <span
+                              key={i}
+                              className={`star ${i < Math.round(p.rating || 0) ? 'filled' : ''}`}
+                            >
+                              ★
+                            </span>
+                          ))}
+                        </div>
+                        <span className="rating-text">({p.reviewCount || 0})</span>
+                      </div>
+
+                      <div className="price-section">
+                        {Number(p.discount) > 0 && (
+                          <span className="original-price">
+                            ${Number(p.originalPrice).toLocaleString('es-AR')}
+                          </span>
+                        )}
+                        <p className="current-price">
+                          ${Number(p.price).toLocaleString('es-AR')}
+                        </p>
+                      </div>
+
+                      <button
+                        className="add-to-cart-btn"
+                        disabled={Number(p.stock) <= 0}
+                        onClick={() => handleAddToCart(p)}
+                      >
+                        Agregar
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              {/* Paginado */}
+              <div className="pagination">
+                <button
+                  className="btn"
+                  disabled={page <= 1}
+                  onClick={() => setCurrentPage((n) => Math.max(1, n - 1))}
+                >
+                  « Anterior
+                </button>
+                {Array.from({ length: pageCount }).map((_, i) => {
+                  const n = i + 1;
+                  return (
+                    <button
+                      key={n}
+                      className={`btn ${n === page ? 'active' : ''}`}
+                      onClick={() => setCurrentPage(n)}
+                    >
+                      {n}
+                    </button>
+                  );
+                })}
+                <button
+                  className="btn"
+                  disabled={page >= pageCount}
+                  onClick={() => setCurrentPage((n) => Math.min(pageCount, n + 1))}
+                >
+                  Siguiente »
+                </button>
+              </div>
+
+              {/* Espacio y footer con copyright */}
+              <div className="footer-gap" aria-hidden="true"></div>
+              <footer className="home-footer">
+                <small>© {new Date().getFullYear()} Fuego-Eterno. Todos los derechos reservados.</small>
+              </footer>
+            </>
+          )}
+        </section>
       </div>
-    </>
+    </main>
   );
 }
