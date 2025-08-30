@@ -1,53 +1,102 @@
-:root {
-  /* Paleta base */
-  --color-primary:        #DBB173;  /* beige/ocre */
-  --color-secondary:      #E9E16F;  /* amarillo pálido */
-  --color-dark:           #291109;  /* marrón oscuro */
-  --color-gray:           #7A706A;  /* gris topo */
-  --color-light:          #F2EEEC;  /* off-white */
-
-  /* Colores funcionales */
-  --color-success:        #10b981;
-  --color-warning:        #facc15;
-  --color-warning-hover:  #eab308;
-  --color-danger:         #ef4444;
-  --color-danger-hover:   #dc2626;
-  --color-info:           #2563eb;
-  --color-info-hover:     #1d4ed8;
-  --color-stock:          rgba(251, 146, 60, 0.9);
-
-  /* Neutrales / UI */
-  --color-muted:          #999999;
-  --color-border:         #ddd;
-  --color-border-light:   #ccc;
-  --color-border-soft:    #e0e0e0;
-  --color-bg-soft:        #fafafa;
-  --color-bg-hover:       #f0f0f0;
-  --color-tab-active:     var(--color-info);
-  --color-tab-inactive:   #e5e7eb;
-  --color-tab-text:       #111827;
-
-  /* Ratings */
-  --color-rating-empty:   #d1d5db;
-  --color-rating-fill:    #fbbf24;
-  --color-rating-text:    #6b7280;
-
-  /* Skeleton loaders */
-  --color-skeleton-1:     #f0f0f0cf;
-  --color-skeleton-2:     #f0f0f0cf;
-}
-
-
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
+/* ===== Reset y tipografía mínima ===== */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
 body {
-  font-family: sans-serif;
-  background: var(--color-light);
-  color: var(--color-dark);
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", sans-serif;
   line-height: 1.4;
+  background: radial-gradient(1200px 800px at 20% -10%, #1b1411 0%, #0f0c0a 50%, #0b0908 100%);
+  color: #f3efe9;
 }
+
+/* Evitar links azules por defecto */
+a { color: #f3efe9; text-decoration: none; }
+a:hover { color: #ffc27a; }
+
+/* ===== Paleta raíz (oscura “Fe”) ===== */
+:root{
+  --bg:#0f0c0a;
+  --panel:#1b1411;
+  --card:#201713;
+  --border:rgba(255,255,255,.08);
+  --text:#f3efe9;
+  --muted:#b8aaa1;
+  --accent:#ff6b3d;     /* naranja fundido */
+  --accent-2:#ffc27a;   /* brillo dorado */
+  --rating:#ffd166;
+
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+  --blur: blur(8px);
+}
+
+/* ===== Botones base ===== */
+.btn{
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: .55rem .9rem;
+  cursor: pointer;
+  transition: .2s ease;
+}
+.btn:hover{
+  transform: translateY(-1px);
+  border-color: var(--accent);
+  box-shadow: 0 6px 18px rgba(255,107,61,.15);
+}
+.btn:disabled{ opacity:.6; cursor: default; }
+
+/* ===== Contenedor genérico ===== */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+
+/* ===== NAVBAR moderno ===== */
+.neo-nav{
+  position: sticky; top: 0; z-index: 1000;
+  backdrop-filter: var(--blur);
+  background: color-mix(in oklab, var(--panel) 92%, transparent);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+.neo-wrap{
+  max-width: 1200px; margin: 0 auto;
+  padding: .6rem 1rem;
+  display: grid; grid-template-columns: 220px 1fr auto;
+  gap: 1rem; align-items: center;
+}
+.brand{ display:flex; align-items: baseline; gap:.5rem }
+.brand-atom{ color: var(--accent); font-weight: 900; font-size: 1.35rem; letter-spacing:.4px; }
+.brand-name{ font-weight: 700; opacity:.9; }
+
+.neo-search{ display:flex; gap:.5rem; align-items:center; }
+.neo-search input{
+  width:100%;
+  padding:.55rem .75rem;
+  border-radius:12px;
+  background: var(--card);
+  color: var(--text);
+  border:1px solid var(--border);
+}
+.pill{
+  border:1px solid var(--border);
+  border-radius: 999px;
+  padding:.5rem .9rem;
+  background: linear-gradient(180deg, var(--panel), #1f1713);
+}
+.ghost{
+  background: transparent;
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:.45rem .8rem;
+  color: var(--muted);
+}
+.ghost:hover{ border-color: var(--accent); color: var(--text); }
+.neo-actions{ display:flex; gap:.5rem; align-items:center; }
+.badge{
+  margin-left:.4rem; background: var(--accent);
+  color:#2b160e; border-radius:999px; padding:.05rem .45rem; font-weight:700;
+}
+
+/* Utilidades menores */
+.mt-1{ margin-top:.5rem; }
+.neo-nav a { color:#f3efe9; text-decoration:none; }
+.neo-nav a:hover { color:#ffc27a; }
