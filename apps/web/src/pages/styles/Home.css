@@ -1,6 +1,6 @@
 /* ===== Página Home ===== */
 .page { padding-top: .6rem; }
-.container { max-width: 1200px; margin: 1.2rem auto; padding: 0 1rem; }
+.container { max-width: 1200px; margin: 1.2rem auto; }
 
 /* Encabezado + buscador local */
 .content-header{
@@ -22,11 +22,19 @@
 }
 .searchbar-button:hover{ border-color:var(--accent); transform:translateY(-1px); }
 
+.tituloProducts{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  width:100%;
+}
+
 /* ===== Layout con sidebar y contenido ===== */
 .layout{
   display:grid;
   grid-template-columns: 300px 1fr;
   gap:1.25rem;
+  padding: 1.5em !important;
 }
 
 /* ===== Sidebar y acordeón de filtros ===== */
@@ -66,6 +74,7 @@
 .price-range{ display:flex; flex-flow:column nowrap; gap:.45rem; }
 .searchbar-input, .price-range input, .sidebar select{
   background: var(--card); color: var(--text);
+
   border:1px solid var(--border); border-radius:10px; padding:.5rem .6rem; width:100%;
 }
 .filter-block{ margin-bottom:1rem; }

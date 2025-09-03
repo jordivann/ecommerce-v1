@@ -73,7 +73,7 @@ const SearchBar = ({ value, onSearch }) => {
   }, []);
 
   return (
-    <div className="searchbar-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+    <div className="searchbar-wrapper" style={{ display: 'flex', flexDirection: 'column',width:'50%', gap: '0.3rem' }}>
       <div style={{ display: 'flex', gap: '0.5rem' }}>
         <input
           className="searchbar-input"

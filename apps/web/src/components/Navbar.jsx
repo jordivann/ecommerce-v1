@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import WishlistModal from './WishlistModal';
 import './styles/Navbar.css'
-import SearchBar from './SearchBar';
 import { useSettings } from '../context/settingsContext';
 import CartIcon from './CartIcon';
 
@@ -48,7 +47,6 @@ export default function Navbar({ user, handleLogout, cartItemsCount = 0 , search
 
             </Link>
 
-            <SearchBar value={searchQuery} onSearch={setSearchQuery} />
             {/* Right side actions */}
             <div className="navbar-actions">
               {/* Wishlist */}
