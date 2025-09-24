@@ -312,7 +312,38 @@ router.post('/themes/:id/activate', authRequired('admin'), async (req, res) => {
     res.status(500).json({ error: 'Error al activar el tema' });
   }
 });
+// POST /api/v1/dashboard/orders/:id/confirm-payment
+router.post('/orders/:id/confirm-payment', authRequired('admin'), async (req, res) => {
+  const { id } = req.params;
 
+  try {
+    await pool.query('BEGIN');
+
+    // 1) Actualizar pago → approved (si no existe, lo creamos)
+    await pool.query(`
+      INSERT INTO payments (order_id, amount, method, status, currency, provider_id, created_at)
+      SELECT o.id, o.total, 'manual', 'approved', o.currency, 'manual-'||o.id, NOW()
+      FROM orders o
+      WHERE o.id = $1
+      ON CONFLICT (order_id) DO UPDATE
+        SET status = 'approved', provider_id = 'manual-'||EXCLUDED.order_id
+    `, [id]);
+
+    // 2) Marcar orden como pagada
+    await pool.query(`
+      UPDATE orders
+      SET status = 'paid', payment_status = 'approved', updated_at = NOW()
+      WHERE id = $1
+    `, [id]);
+
+    await pool.query('COMMIT');
+    res.json({ ok: true, message: `Orden #${id} marcada como pagada` });
+  } catch (err) {
+    await pool.query('ROLLBACK');
+    console.error('❌ Error confirmando pago:', err);
+    res.status(400).json({ error: 'No se pudo confirmar el pago' });
+  }
+});
 
 
 export default router;

@@ -13,7 +13,10 @@ import wishlistRouter from './routes/wishlist.js';
 import wishlistAdminRouter from './routes/wishlistAdmin.js';
 import themeRouter from './routes/theme.js';
 import settingsRouter from './routes/settings.js';
-import cartRouter from './routes/cart.js'
+import cartRouter from './routes/cart.js';
+
+import checkoutRouter from './routes/checkout.js';
+import ordersRouter from './routes/orders.js'
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -36,6 +39,8 @@ app.use('/api/v1/wishlistAdmin', wishlistAdminRouter);
 app.use('/api/v1/theme', themeRouter);
 app.use('/api/v1/settings', settingsRouter);
 app.use('/api/v1/cart', cartRouter);
+app.use('/api/v1/checkout', checkoutRouter); 
+app.use('/api/v1/orders', ordersRouter);
 
 (async () => {
   try {

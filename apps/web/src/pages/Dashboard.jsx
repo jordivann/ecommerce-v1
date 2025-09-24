@@ -121,56 +121,102 @@ export default function Dashboard() {
 
 
   return (
-     <div className="dashboard-container">
-      <div className="dashboard-tabs">
-        <button
-          className={activeTab === 'usuarios' ? 'active' : ''}
-          onClick={() => setActiveTab('usuarios')}
-        >
-          Usuarios
-        </button>
-        <button
-          className={activeTab === 'productos' ? 'active' : ''}
-          onClick={() => setActiveTab('productos')}
-        >
-          Productos
-        </button>
-        <button
-          className={activeTab === 'wishlist' ? 'active' : ''}
-          onClick={() => setActiveTab('wishlist')}
-        >
-          Wishlist
-        </button>
-        <button
-          className={activeTab === 'themes' ? 'active' : ''}
-          onClick={() => setActiveTab('themes')}
-        >
-          Themes
-        </button>
-        <button
-          className={activeTab === 'settings' ? 'active' : ''}
-          onClick={() => setActiveTab('settings')}
-        >
-          Settings
-        </button>
+  <div className="dashboard-shell">
+    {/* Sidebar vertical */}
+    <aside className="dash-sidebar">
+      <div className="dash-brand">
+        <div className="brand-logo" aria-hidden="true">🔥</div>
+        <div className="brand-text">
+          <strong>Panel</strong>
+          <small>Administración</small>
+        </div>
       </div>
 
+      <nav className="dash-nav" aria-label="Secciones del panel">
+        <button
+          className={`dash-link ${activeTab === 'usuarios' ? 'active' : ''}`}
+          onClick={() => setActiveTab('usuarios')}
+        >
+          <span className="icon" aria-hidden>👤</span>
+          <span className="txt">Usuarios</span>
+        </button>
 
+        <button
+          className={`dash-link ${activeTab === 'productos' ? 'active' : ''}`}
+          onClick={() => setActiveTab('productos')}
+        >
+          <span className="icon" aria-hidden>🛒</span>
+          <span className="txt">Productos</span>
+        </button>
 
-      <div className="dashboard-content">
+        <button
+          className={`dash-link ${activeTab === 'wishlist' ? 'active' : ''}`}
+          onClick={() => setActiveTab('wishlist')}
+        >
+          <span className="icon" aria-hidden>❤️</span>
+          <span className="txt">Wishlist</span>
+        </button>
+
+        <button
+          className={`dash-link ${activeTab === 'themes' ? 'active' : ''}`}
+          onClick={() => setActiveTab('themes')}
+        >
+          <span className="icon" aria-hidden>🎨</span>
+          <span className="txt">Themes</span>
+        </button>
+
+        <button
+          className={`dash-link ${activeTab === 'settings' ? 'active' : ''}`}
+          onClick={() => setActiveTab('settings')}
+        >
+          <span className="icon" aria-hidden>⚙️</span>
+          <span className="txt">Settings</span>
+        </button>
+      </nav>
+    </aside>
+
+    {/* Contenido principal */}
+    <main className="dash-main">
+      <header className="dash-header">
+        <h1 className="dash-title">
+          {activeTab === 'usuarios' && 'Usuarios'}
+          {activeTab === 'productos' && 'Productos'}
+          {activeTab === 'wishlist' && 'Wishlist'}
+          {activeTab === 'themes' && 'Themes'}
+          {activeTab === 'settings' && 'Settings'}
+        </h1>
+
         <input
           type="text"
-          className="product-search-input"
-          placeholder="Buscar producto, categoría, descripción..."
+          className="dash-search"
+          placeholder={
+            activeTab === 'usuarios'
+              ? 'Buscar por nombre, email, rol…'
+              : 'Buscar producto, categoría, descripción…'
+          }
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        {activeTab === 'usuarios' && <UserTable users={filteredUsers} onRoleChange={handleRoleChange}/>}
+      </header>
+
+      <section className="dash-content">
+        {activeTab === 'usuarios' && (
+          <UserTable users={filteredUsers} onRoleChange={handleRoleChange} />
+        )}
 
         {activeTab === 'productos' && (
           <>
-            <button onClick={() => {    console.log('Abrir modal');
-                    setShowModal(true);}}>➕ Nuevo Producto</button>
+            <div className="dash-actions">
+              <button
+                className="btn-primary"
+                onClick={() => {
+                  setShowModal(true);
+                }}
+              >
+                ➕ Nuevo Producto
+              </button>
+            </div>
+
             <ProductTable
               products={filteredProducts}
               categories={categories}
@@ -190,26 +236,24 @@ export default function Dashboard() {
                 onSave={handleUpdateProduct}
               />
             )}
+
             <ProductFormModal
               show={showModal}
               onClose={() => setShowModal(false)}
               token={token}
               categories={categories}
               onProductCreated={(newProduct) => {
-                setProducts(prev => [...prev, newProduct]);
+                setProducts((prev) => [...prev, newProduct]);
               }}
             />
-
-
           </>
         )}
 
         {activeTab === 'wishlist' && <WishlistAnalytics />}
-        
         {activeTab === 'themes' && <Themes />}
-        
         {activeTab === 'settings' && <SettingPage />}
-      </div>
-    </div>
-  );
+      </section>
+    </main>
+  </div>
+);
 }

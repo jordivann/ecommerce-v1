@@ -3,14 +3,7 @@ import { useCart } from '../context/cartContext';
 import './styles/Cart.css';
 
 export default function Cart() {
-  const {
-    cart,
-    loading,
-    updateCart,
-    removeFromCart,
-    clearCart,
-    errors,
-  } = useCart();
+  const { cart, loading, updateCart, removeFromCart, clearCart, errors } = useCart();
 
   if (loading) return <div className="cart">Cargando carrito...</div>;
 
@@ -21,53 +14,75 @@ export default function Cart() {
       </div>
     );
 
+  // 👉 NUEVO: subtotal (precio * cantidad)
+  const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
   return (
     <div className="cart">
       <h2>Mi Carrito</h2>
 
-      <ul className="cart-list">
-        {cart.map((item) => (
-          <li key={item.id} className="cart-item">
-            <img src={item.image_url} alt={item.name} className="cart-img" />
+      {/* 👉 NUEVO: layout 2 columnas (lista + resumen) */}
+      <div className="cart-layout">
+        <ul className="cart-list">
+          {cart.map((item) => (
+            <li key={item.id} className="cart-item">
+              <img src={item.image_url} alt={item.name} className="cart-img" />
 
-            <div className="cart-info">
-              <h3>{item.name}</h3>
-              <p>Precio: ${item.price}</p>
-              <p>Total: ${item.price * item.quantity}</p>
-            </div>
+              <div className="cart-info">
+                <h3>{item.name}</h3>
+                <p>Precio: ${item.price}</p>
+                <p>Total: ${item.price * item.quantity}</p>
+              </div>
 
-            <div className="cart-qty-controls">
+              <div className="cart-qty-controls">
+                <button
+                  onClick={() =>
+                    item.quantity > 1
+                      ? updateCart(item.id, item.quantity - 1)
+                      : removeFromCart(item.id)
+                  }
+                >
+                  -
+                </button>
+                <span>{item.quantity}</span>
+                <button onClick={() => updateCart(item.id, item.quantity + 1)}>
+                  +
+                </button>
+              </div>
+
               <button
-                onClick={() =>
-                  item.quantity > 1
-                    ? updateCart(item.id, item.quantity - 1)
-                    : removeFromCart(item.id)
-                }
+                className="cart-btn remove"
+                onClick={() => removeFromCart(item.id)}
               >
-                -
+                🗑
               </button>
-              <span>{item.quantity}</span>
-              <button onClick={() => updateCart(item.id, item.quantity + 1)}>
-                +
-              </button>
-            </div>
+              {errors[item.id] && <span className="cart-error">{errors[item.id]}</span>}
+            </li>
+          ))}
+        </ul>
 
-            <button
-              className="cart-btn remove"
-              onClick={() => removeFromCart(item.id)}
-            >
-              🗑
-            </button>
-            {errors[item.id] && (<span className="cart-error">{errors[item.id]}</span>)}
-          </li>
-        
+        {/* 👉 NUEVO: Resumen */}
+        <aside className="cart-summary" aria-label="Resumen de compra">
+          <h3>Resumen</h3>
 
-        ))}
-      </ul>
+          <div className="cart-summary-row">
+            <span>Subtotal</span>
+            <span>${subtotal.toLocaleString('es-AR')}</span>
+          </div>
 
-      <button className="cart-clear-btn" onClick={clearCart}>
-        Vaciar carrito
-      </button>
+          <div className="cart-summary-note">
+            El envío se calcula en el checkout.
+          </div>
+
+          <button className="cart-checkout-btn">
+            Finalizar compra
+          </button>
+
+          <button className="cart-clear-btn" onClick={clearCart}>
+            Vaciar carrito
+          </button>
+        </aside>
+      </div>
     </div>
   );
 }

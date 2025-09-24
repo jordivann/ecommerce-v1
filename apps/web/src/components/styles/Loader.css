@@ -4,7 +4,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: var(--color-light);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-dark));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -16,7 +16,7 @@
 .loader-logo {
   font-size: 2.5rem;
   font-weight: bold;
-  color: var(--color-primary);
+  color: linear-gradient(225deg, var(--color-light), var(--color-dark));
   margin-bottom: 1.5rem;
   font-family: 'Segoe UI', sans-serif;
   animation: fadeIn 1.2s ease-in-out;
@@ -26,7 +26,7 @@
   width: 60px;
   height: 60px;
   border: 6px solid var(--color-border);
-  border-top-color: var(--color-primary);
+  border-top-color: var(--color-light);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

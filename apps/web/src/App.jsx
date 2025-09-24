@@ -12,6 +12,7 @@ import Loader from './components/Loader';
 import ThemeLoader from './components/dashboard/ThemeLoader';
 import { SettingsProvider } from './context/settingsContext';
 import { CartProvider } from './context/cartContext';
+import LandPage from './pages/LandPage';
 import Cart from './pages/Cart';
 export default function App() {
   const { user, loading } = useAuth();
@@ -33,7 +34,10 @@ export default function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Layout />}>
-              <Route index element={<Home />} />
+              
+              <Route index element={<LandPage />} />
+              <Route path="/products" element={<Home />} />
+
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               
